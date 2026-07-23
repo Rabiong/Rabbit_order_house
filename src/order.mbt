@@ -19,7 +19,7 @@ pub struct Order {
 
 /// 订单管理集合
 pub struct OrderStore {
-  mut orders : Array[Order]
+  orders : Array[Order]
   mut next_id : Int
 }
 

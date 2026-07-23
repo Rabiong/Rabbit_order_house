@@ -67,7 +67,7 @@ pub fn OrderStore::recent_orders(self : OrderStore, n : Int) -> Array[Order] {
   if len <= n {
     self.orders
   } else {
-    let mut result : Array[Order] = []
+    let result : Array[Order] = []
     let start = len - n
     for i in start ..< len {
       result.push(self.orders[i])

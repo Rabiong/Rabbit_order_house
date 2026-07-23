@@ -17,7 +17,7 @@ pub fn Cart::add_dish_from_store(self : Cart, dish_id : Int, store : DishStore) 
 pub fn Cart::add_dishes(self : Cart, dish_ids : Array[Int], store : DishStore) -> Result[Unit, String] {
   for id in dish_ids {
     let result = self.add_dish_from_store(id, store)
-    if result.is_err() {
+    if result is Err(_) {
       return result
     }
   }
@@ -35,7 +35,7 @@ pub fn Cart::item_qty(self : Cart, dish_id : Int) -> Int {
 
 /// 检查购物车是否包含某菜品
 pub fn Cart::contains(self : Cart, dish_id : Int) -> Bool {
-  self.items.iter().find_first(fn(item) { item.dish_id == dish_id }).is_some()
+  self.items.iter().find_first(fn(item) { item.dish_id == dish_id }) is Some(_)
 }
 
 /// 格式化购物车摘要

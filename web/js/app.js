@@ -41,7 +41,13 @@ let cart = [];
 let currentCategory = 'all';
 let orders = [];
 let orderIdCounter = 1;
+let orderFilter = 'all';
 const DELIVERY_FEE = 6;
+
+// ======= 用户状态 =======
+let currentUser = null;
+let users = [];
+let userIdCounter = 1;
 
 // ======= API 通信层 =======
 const API = {
@@ -236,6 +242,150 @@ function toggleCart() {
   document.getElementById('cartOverlay').classList.toggle('open');
 }
 
+// ======= 登录/注册 =======
+function showLoginModal() {
+  document.getElementById('authOverlay').classList.add('open');
+  document.getElementById('authModal').classList.add('open');
+  document.getElementById('loginForm').style.display = '';
+  document.getElementById('registerForm').style.display = 'none';
+}
+
+function showRegisterModal() {
+  document.getElementById('authOverlay').classList.add('open');
+  document.getElementById('authModal').classList.add('open');
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = '';
+}
+
+function closeAuthModal() {
+  document.getElementById('authOverlay').classList.remove('open');
+  document.getElementById('authModal').classList.remove('open');
+}
+
+function switchAuthForm(form) {
+  if (form === 'login') {
+    document.getElementById('loginForm').style.display = '';
+    document.getElementById('registerForm').style.display = 'none';
+  } else {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = '';
+  }
+}
+
+function handleLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  if (!username || !password) { showToast('请填写用户名和密码', 'error'); return; }
+  
+  const user = users.find(u => u.username === username && u.password === password);
+  if (!user) { showToast('用户名或密码错误', 'error'); return; }
+  
+  currentUser = user;
+  closeAuthModal();
+  updateUserNav();
+  showToast(`欢迎回来，${user.nickname}！`, 'success');
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+function handleRegister() {
+  const username = document.getElementById('regUsername').value.trim();
+  const nickname = document.getElementById('regNickname').value.trim() || username;
+  const password = document.getElementById('regPassword').value.trim();
+  if (!username || !password) { showToast('用户名和密码不能为空', 'error'); return; }
+  if (username.length < 2) { showToast('用户名至少2个字符', 'error'); return; }
+  if (password.length < 3) { showToast('密码至少3个字符', 'error'); return; }
+  if (users.find(u => u.username === username)) { showToast('用户名已存在', 'error'); return; }
+  
+  const user = {
+    id: userIdCounter++,
+    username,
+    password,
+    nickname,
+    phone: '',
+    address: '',
+    avatar: '',
+    createdAt: new Date().toLocaleString('zh-CN')
+  };
+  users.push(user);
+  currentUser = user;
+  closeAuthModal();
+  updateUserNav();
+  showToast(`🎉 欢迎加入兔兔小厨房，${nickname}！`, 'success');
+  document.getElementById('regUsername').value = '';
+  document.getElementById('regNickname').value = '';
+  document.getElementById('regPassword').value = '';
+}
+
+function handleLogout() {
+  currentUser = null;
+  updateUserNav();
+  closeUserDropdown();
+  showToast('已退出登录', 'info');
+}
+
+// ======= 用户下拉菜单 =======
+function toggleUserDropdown() {
+  document.getElementById('userDropdown').classList.toggle('open');
+}
+
+function closeUserDropdown() {
+  document.getElementById('userDropdown').classList.remove('open');
+}
+
+function updateUserNav() {
+  const authNav = document.getElementById('authNav');
+  const userNav = document.getElementById('userNav');
+  if (currentUser) {
+    authNav.classList.add('hidden');
+    userNav.classList.remove('hidden');
+    document.getElementById('dropdownUserName').textContent = currentUser.nickname;
+    document.getElementById('dropdownUserSub').textContent = `@${currentUser.username}`;
+    const icon = document.getElementById('userAvatarIcon');
+    if (currentUser.avatar) {
+      icon.outerHTML = `<img src="${currentUser.avatar}" alt="avatar" style="width:100%;height:100%;object-fit:cover;">`;
+    } else {
+      icon.className = 'fas fa-user';
+    }
+  } else {
+    authNav.classList.remove('hidden');
+    userNav.classList.add('hidden');
+  }
+}
+
+// ======= 个人信息 =======
+function showProfile() {
+  if (!currentUser) { showToast('请先登录', 'error'); return; }
+  closeUserDropdown();
+  document.getElementById('profilePanel').classList.add('open');
+  document.getElementById('profileOverlay').classList.add('open');
+  document.getElementById('profileNickname').value = currentUser.nickname || '';
+  document.getElementById('profilePhone').value = currentUser.phone || '';
+  document.getElementById('profileAddress').value = currentUser.address || '';
+  document.getElementById('profileName').textContent = currentUser.nickname;
+  document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+}
+
+function closeProfile() {
+  document.getElementById('profilePanel').classList.remove('open');
+  document.getElementById('profileOverlay').classList.remove('open');
+}
+
+function saveProfile() {
+  if (!currentUser) return;
+  const nickname = document.getElementById('profileNickname').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  const address = document.getElementById('profileAddress').value.trim();
+  if (!nickname) { showToast('昵称不能为空', 'error'); return; }
+  
+  currentUser.nickname = nickname;
+  currentUser.phone = phone;
+  currentUser.address = address;
+  document.getElementById('profileName').textContent = nickname;
+  updateUserNav();
+  showToast('个人信息已保存', 'success');
+}
+
 // ======= 订单面板 =======
 function toggleOrders() {
   document.getElementById('orderPanel').classList.toggle('open');
@@ -243,11 +393,26 @@ function toggleOrders() {
   renderOrders();
 }
 
+function showOrdersPanel() {
+  closeUserDropdown();
+  document.getElementById('orderPanel').classList.add('open');
+  document.getElementById('orderOverlay').classList.add('open');
+  filterOrders('all');
+}
+
+function filterOrders(filter) {
+  orderFilter = filter;
+  document.querySelectorAll('.order-filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+  renderOrders();
+}
+
 function renderOrders() {
   const container = document.getElementById('orderList');
   if (orders.length === 0) {
     container.innerHTML = `
-      <div class="empty-cart">
+      <div class="empty-state">
         <svg width="100" height="100" viewBox="0 0 100 100" class="mx-auto mb-4">
           <circle cx="50" cy="45" r="25" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
           <path d="M 35 65 L 65 65" stroke="#ffd1dc" stroke-width="2" stroke-linecap="round"/>
@@ -262,28 +427,62 @@ function renderOrders() {
     return;
   }
   
-  container.innerHTML = orders.map(order => {
-    const statusClass = order.status;
+  const filtered = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
+  
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><p class="font-medium">没有符合条件的订单</p></div>`;
+    return;
+  }
+  
+  container.innerHTML = filtered.map(order => {
     const statusMap = { pending: '等待处理', preparing: '准备中', completed: '已完成', cancelled: '已取消' };
+    const iconMap = { pending: 'fa-clock', preparing: 'fa-fire', completed: 'fa-check-circle', cancelled: 'fa-times-circle' };
+    const colorMap = { pending: '#ff9a56', preparing: '#ff7ba9', completed: '#7fdcb8', cancelled: '#ccc' };
     const itemSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
+    const userLabel = currentUser && order.username ? ` · ${order.username}` : '';
+    
     return `
-      <div class="order-card ${statusClass}">
+      <div class="order-card ${order.status}" style="position:relative;">
         <div class="flex items-center justify-between mb-2">
-          <span class="font-bold">订单 #${order.id}</span>
-          <span class="order-status ${statusClass}">${statusMap[statusClass]}</span>
+          <div class="flex items-center gap-2">
+            <i class="fas ${iconMap[order.status] || 'fa-receipt'}" style="color: ${colorMap[order.status]};"></i>
+            <span class="font-bold">订单 #${order.id}${userLabel}</span>
+          </div>
+          <span class="order-status ${order.status}">
+            <i class="fas ${iconMap[order.status] || 'fa-receipt'}"></i>
+            ${statusMap[order.status] || order.status}
+          </span>
         </div>
         <p class="text-sm" style="color: var(--text-soft);">${itemSummary}</p>
-        <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center justify-between mt-3 pt-3" style="border-top: 1px solid var(--border);">
           <span class="price font-bold">¥${order.total}</span>
-          <span class="text-xs" style="color: var(--text-light);">${order.createdAt}</span>
+          <div class="flex items-center gap-2">
+            ${order.status === 'pending' ? `<button class="text-xs px-3 py-1.5 rounded-full font-semibold" style="background:#ffe4ec;color:#e74c3c;border:none;cursor:pointer;" onclick="cancelOrder(${order.id})">取消订单</button>` : ''}
+            <span class="text-xs" style="color: var(--text-light);">${order.createdAt}</span>
+          </div>
         </div>
       </div>
     `;
   }).join('');
 }
 
+function cancelOrder(id) {
+  const order = orders.find(o => o.id === id);
+  if (order && order.status === 'pending') {
+    order.status = 'cancelled';
+    renderOrders();
+    showToast('订单已取消', 'info');
+  }
+}
+
 // ======= 结算 =======
 function checkout() {
+  if (!currentUser) {
+    showToast('请先登录再下单哦～', 'info');
+    setTimeout(() => showLoginModal(), 500);
+    return;
+  }
+  
   if (cart.length === 0) {
     showToast('购物篮空空的，先挑些好吃的吧～', 'info');
     return;
@@ -301,6 +500,7 @@ function checkout() {
     delivery: DELIVERY_FEE,
     total: totalPrice,
     status: 'pending',
+    username: currentUser.nickname,
     createdAt: new Date().toLocaleString('zh-CN')
   };
   orders.unshift(order);
@@ -310,7 +510,8 @@ function checkout() {
     items: cart.map(i => ({ dish_id: i.id, name: i.name, price: i.price, qty: i.qty })),
     subtotal: subtotalVal,
     delivery: DELIVERY_FEE,
-    total: totalPrice
+    total: totalPrice,
+    username: currentUser.nickname
   });
   
   showToast(`下单成功！${totalQty} 件商品共 ¥${totalPrice}，兔兔开始做啦～`, 'success');
@@ -442,6 +643,7 @@ function initScrollSpy() {
 document.addEventListener('DOMContentLoaded', () => {
   renderDishes();
   updateCart();
+  updateUserNav();
   createFallingItems();
   setupReveal();
   initCategories();
@@ -450,6 +652,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // 绑定兔子点击事件
   const bunny = document.querySelector('.bunny-mascot');
   if (bunny) bunny.addEventListener('click', bunnyWave);
+  
+  // 点击页面空白关闭下拉菜单
+  document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.user-dropdown-wrap');
+    if (wrap && !wrap.contains(e.target)) {
+      closeUserDropdown();
+    }
+  });
+  
+  // 按 Escape 关闭弹窗
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeAuthModal();
+      closeProfile();
+      if (document.getElementById('cartPanel').classList.contains('open')) toggleCart();
+      if (document.getElementById('orderPanel').classList.contains('open')) toggleOrders();
+    }
+  });
   
   // 尝试从 Moonbit 后端加载数据
   API.fetchDishes().then(data => {

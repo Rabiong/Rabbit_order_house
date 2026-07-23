@@ -17,7 +17,7 @@ pub fn Cart::new() -> Cart {
 }
 
 /// 添加菜品到购物车
-pub fn Cart::add(self : Cart, dish_id : Int, name : String, price : Float, svg : String) {
+pub fn Cart::add(self : Cart, dish_id : Int, name : String, price : Float, svg : String) -> Unit {
   let found = self.items.iter().find_first(fn(item) { item.dish_id == dish_id })
   match found {
     Some(item) => { item.qty = item.qty + 1 }
@@ -34,12 +34,12 @@ pub fn Cart::add(self : Cart, dish_id : Int, name : String, price : Float, svg :
 }
 
 /// 从购物车移除菜品
-pub fn Cart::remove(self : Cart, dish_id : Int) {
+pub fn Cart::remove(self : Cart, dish_id : Int) -> Unit {
   self.items = self.items.filter(fn(item) { item.dish_id != dish_id })
 }
 
 /// 更新购物车中某项的数量
-pub fn Cart::update_qty(self : Cart, dish_id : Int, delta : Int) {
+pub fn Cart::update_qty(self : Cart, dish_id : Int, delta : Int) -> Unit {
   let found = self.items.iter().find_first(fn(item) { item.dish_id == dish_id })
   match found {
     Some(item) => {
@@ -73,6 +73,6 @@ pub fn Cart::total(self : Cart) -> Float {
 }
 
 /// 清空购物车
-pub fn Cart::clear(self : Cart) {
+pub fn Cart::clear(self : Cart) -> Unit {
   self.items = []
 }

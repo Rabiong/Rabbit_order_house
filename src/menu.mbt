@@ -1,11 +1,11 @@
 /// 菜品管理引擎
 /// 提供菜品的增删改查、分类筛选等功能
 
-pub fn DishStore::add_dish(self : DishStore, dish : Dish) {
+pub fn DishStore::add_dish(self : DishStore, dish : Dish) -> Unit {
   self.dishes.push(dish)
 }
 
-pub fn DishStore::init_default(self : DishStore) {
+pub fn DishStore::init_default(self : DishStore) -> Unit {
   let csv = "id,name,desc,price,category,tag,tag_type\n1,胡萝卜松饼,新鲜胡萝卜烘焙松软香甜,18,dessert,招牌,hot\n2,草莓奶昔,新鲜草莓与牛奶的完美融合,22,drink,热卖,hot\n3,兔兔便当,小兔子饭团配时令蔬菜,38,main,推荐,\n4,棉花糖可可,温暖可可配上软绵棉花糖,26,drink,新品,new\n5,蜂蜜松饼,层层叠叠淋上金黄蜂蜜,28,dessert,热卖,hot\n6,抹茶冰淇淋,清新抹茶配香脆蛋筒,24,dessert,推荐,\n7,蓝莓优格,新鲜蓝莓配香浓优格,20,salad,健康,new\n8,玉米浓汤,香浓玉米熬制温暖人心,16,main,限定,limited"
   self.load_from_csv(csv).unwrap()
 }
@@ -31,10 +31,10 @@ pub fn DishStore::dish_by_id(self : DishStore, id : Int) -> Dish? {
 
 /// 获取所有可用分类
 pub fn DishStore::categories(self : DishStore) -> Array[String] {
-  let mut unique : Array[String] = []
+  let unique : Array[String] = []
   for d in self.dishes {
     let found = unique.iter().find_first(fn(c) { c == d.category })
-    if found.is_none() {
+    if found is None {
       unique.push(d.category)
     }
   }
@@ -43,14 +43,14 @@ pub fn DishStore::categories(self : DishStore) -> Array[String] {
 
 /// 按名称搜索菜品
 pub fn DishStore::search_dishes(self : DishStore, query : String) -> Array[Dish] {
-  let q = query.lowercase()
+  let q = query.to_lower()
   self.dishes.filter(fn(d) {
-    d.name.lowercase().contains(q) || d.desc.lowercase().contains(q)
+    d.name.to_lower().contains(q) || d.desc.to_lower().contains(q)
   })
 }
 
 /// 删除菜品
-pub fn DishStore::remove_dish(self : DishStore, id : Int) {
+pub fn DishStore::remove_dish(self : DishStore, id : Int) -> Unit {
   self.dishes = self.dishes.filter(fn(d) { d.id != id })
 }
 

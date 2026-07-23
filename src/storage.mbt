@@ -77,15 +77,19 @@ pub fn OrderStore::to_json(self : OrderStore) -> String {
 
 /// 从 CSV 字符串加载菜品
 pub fn DishStore::load_from_csv(self : DishStore, csv_content : String) -> Result[Unit, String] {
-  let lines = csv_content.split("\n").map(fn(sv) { sv.to_string() }).to_array()
+  let lines = csv_content.split("\n").map(fn(sv) { sv.to_owned() }).to_array()
   // 跳过表头
   let data_lines = if lines.length() > 0 && lines[0].contains("id") {
-    lines[1..].to_array()
+    let result : Array[String] = []
+    for i in 1 ..< lines.length() {
+      result.push(lines[i])
+    }
+    result
   } else {
     lines
   }
   for line in data_lines {
-    let trimmed = line.trim()
+    let trimmed = line.trim().to_owned()
     if trimmed != "" {
       let dish = Dish::from_csv_row(trimmed)
       match dish {

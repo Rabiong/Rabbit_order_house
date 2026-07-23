@@ -49,9 +49,32 @@
     </ul>
     
     <div class="flex items-center gap-3">
-      <button onclick="toggleOrders()" class="w-10 h-10 rounded-full flex items-center justify-center transition" style="background: white; color: var(--text-soft); border: 2px solid var(--border);" title="我的订单">
-        <i class="fas fa-receipt"></i>
-      </button>
+      <!-- 用户区域 -->
+      <div id="authNav">
+        <button onclick="showLoginModal()" class="w-10 h-10 rounded-full flex items-center justify-center transition" style="background: white; color: var(--primary); border: 2px solid var(--primary-light);" title="登录">
+          <i class="fas fa-user"></i>
+        </button>
+      </div>
+      <div id="userNav" class="user-dropdown-wrap hidden">
+        <button class="user-avatar-btn" onclick="toggleUserDropdown()" title="用户菜单">
+          <i class="fas fa-user" id="userAvatarIcon"></i>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="user-info">
+            <div class="name" id="dropdownUserName">用户</div>
+            <div class="sub" id="dropdownUserSub">欢迎光临</div>
+          </div>
+          <button class="user-dropdown-item" onclick="showOrdersPanel()">
+            <i class="fas fa-receipt"></i> 我的订单
+          </button>
+          <button class="user-dropdown-item" onclick="showProfile()">
+            <i class="fas fa-user-cog"></i> 个人信息
+          </button>
+          <button class="user-dropdown-item logout" onclick="handleLogout()">
+            <i class="fas fa-sign-out-alt"></i> 退出登录
+          </button>
+        </div>
+      </div>
       <button class="cart-btn" onclick="toggleCart()" aria-label="打开购物车">
         <i class="fas fa-shopping-basket"></i>
         <span class="cart-badge" id="cartBadge">0</span>
@@ -59,6 +82,91 @@
     </div>
   </nav>
 </header>
+
+<!-- 登录/注册弹窗 -->
+<div class="auth-overlay" id="authOverlay" onclick="closeAuthModal()"></div>
+<div class="auth-modal" id="authModal">
+  <button class="auth-close" onclick="closeAuthModal()"><i class="fas fa-times"></i></button>
+  
+  <!-- 登录表单 -->
+  <div id="loginForm">
+    <div class="auth-bunny">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="65" r="40" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="45" cy="20" rx="10" ry="30" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="75" cy="20" rx="10" ry="30" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="45" cy="22" rx="5" ry="22" fill="#ffb3c8"/>
+        <ellipse cx="75" cy="22" rx="5" ry="22" fill="#ffb3c8"/>
+        <ellipse cx="45" cy="72" rx="10" ry="7" fill="#ff9ec5" opacity="0.6"/>
+        <ellipse cx="75" cy="72" rx="10" ry="7" fill="#ff9ec5" opacity="0.6"/>
+        <circle cx="48" cy="62" r="4" fill="#5a3a44"/>
+        <circle cx="72" cy="62" r="4" fill="#5a3a44"/>
+        <circle cx="50" cy="60" r="1.5" fill="#fff"/>
+        <circle cx="74" cy="60" r="1.5" fill="#fff"/>
+        <ellipse cx="60" cy="70" rx="4" ry="2.5" fill="#ff7ba9"/>
+        <path d="M 56 75 Q 60 80 64 75" stroke="#5a3a44" stroke-width="1.5" fill="none"/>
+        <path d="M 20 50 C 15 45 5 50 10 58 C 15 66 25 60 20 50 Z" fill="#ff7ba9" opacity="0.5">
+          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 100 50 C 105 45 115 50 110 58 C 105 66 95 60 100 50 Z" fill="#ff9a56" opacity="0.5">
+          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2.5s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+    <h2>欢迎回来</h2>
+    <p class="auth-sub">输入你的小兔账号，开始点餐吧</p>
+    <div class="form-group">
+      <label>用户名</label>
+      <input type="text" id="loginUsername" placeholder="输入用户名" required>
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="loginPassword" placeholder="输入密码" required>
+    </div>
+    <button class="auth-btn" onclick="handleLogin()">登 录</button>
+    <p class="auth-switch">还没有账号？<a onclick="switchAuthForm('register')">注册一个新账号</a></p>
+  </div>
+  
+  <!-- 注册表单 -->
+  <div id="registerForm" style="display:none;">
+    <div class="auth-bunny">
+      <svg viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="38" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="42" cy="18" rx="10" ry="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="78" cy="18" rx="10" ry="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <ellipse cx="42" cy="20" rx="5" ry="20" fill="#ffb3c8"/>
+        <ellipse cx="78" cy="20" rx="5" ry="20" fill="#ffb3c8"/>
+        <ellipse cx="43" cy="68" rx="9" ry="6" fill="#ff9ec5" opacity="0.6"/>
+        <ellipse cx="77" cy="68" rx="9" ry="6" fill="#ff9ec5" opacity="0.6"/>
+        <circle cx="47" cy="57" r="3.5" fill="#5a3a44"/>
+        <circle cx="73" cy="57" r="3.5" fill="#5a3a44"/>
+        <circle cx="49" cy="55" r="1.5" fill="#fff"/>
+        <circle cx="75" cy="55" r="1.5" fill="#fff"/>
+        <ellipse cx="60" cy="68" rx="4" ry="2.5" fill="#ff7ba9"/>
+        <path d="M 55 72 Q 60 78 65 72" stroke="#5a3a44" stroke-width="1.5" fill="none"/>
+        <path d="M 60 90 L 60 105" stroke="#ff7ba9" stroke-width="3" stroke-linecap="round"/>
+        <ellipse cx="50" cy="108" rx="12" ry="6" fill="#7fdcb8"/>
+        <ellipse cx="70" cy="108" rx="12" ry="6" fill="#7fdcb8"/>
+      </svg>
+    </div>
+    <h2>加入兔兔小厨房</h2>
+    <p class="auth-sub">创建一个账号，开启美食之旅</p>
+    <div class="form-group">
+      <label>用户名</label>
+      <input type="text" id="regUsername" placeholder="给自己取个名字吧" required>
+    </div>
+    <div class="form-group">
+      <label>昵称</label>
+      <input type="text" id="regNickname" placeholder="怎么称呼你呢（选填）">
+    </div>
+    <div class="form-group">
+      <label>密码</label>
+      <input type="password" id="regPassword" placeholder="设置一个密码" required>
+    </div>
+    <button class="auth-btn" onclick="handleRegister()">注 册</button>
+    <p class="auth-switch">已有账号？<a onclick="switchAuthForm('login')">去登录</a></p>
+  </div>
+</div>
 
 <!-- Hero -->
 <section id="home" class="hero relative z-10">
@@ -498,9 +606,59 @@
         <i class="fas fa-times"></i>
       </button>
     </div>
+    <div class="order-filter-bar" id="orderFilterBar">
+      <button class="order-filter-btn active" data-filter="all" onclick="filterOrders('all')">全部</button>
+      <button class="order-filter-btn" data-filter="pending" onclick="filterOrders('pending')">待处理</button>
+      <button class="order-filter-btn" data-filter="preparing" onclick="filterOrders('preparing')">准备中</button>
+      <button class="order-filter-btn" data-filter="completed" onclick="filterOrders('completed')">已完成</button>
+      <button class="order-filter-btn" data-filter="cancelled" onclick="filterOrders('cancelled')">已取消</button>
+    </div>
   </div>
   
   <div class="flex-1 overflow-y-auto p-6" id="orderList"></div>
+</aside>
+
+<!-- 个人信息面板（全屏覆盖） -->
+<div class="cart-overlay" id="profileOverlay" onclick="closeProfile()" style="z-index: 180;"></div>
+<aside class="order-panel" id="profilePanel" style="z-index: 181;">
+  <div class="p-6 border-b" style="border-color: var(--border);">
+    <div class="flex items-center justify-between">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-user-cog" style="color: var(--primary);"></i>
+        个人信息
+      </h3>
+      <button onclick="closeProfile()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto p-6">
+    <div class="profile-section">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="profile-name" id="profileName">用户昵称</div>
+        <div style="color: var(--text-light); font-size: 0.85rem;" id="profileUsername">@username</div>
+      </div>
+      
+      <div class="form-group">
+        <label>昵称</label>
+        <input type="text" id="profileNickname" placeholder="输入昵称">
+      </div>
+      <div class="form-group">
+        <label>手机号</label>
+        <input type="text" id="profilePhone" placeholder="输入手机号">
+      </div>
+      <div class="form-group">
+        <label>收货地址</label>
+        <input type="text" id="profileAddress" placeholder="输入收货地址">
+      </div>
+      
+      <button class="auth-btn" onclick="saveProfile()">保存信息</button>
+    </div>
+  </div>
 </aside>
 
 <!-- Toast 容器 -->

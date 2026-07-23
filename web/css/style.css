@@ -584,6 +584,274 @@ nav {
   .cart-panel.open, .order-panel.open { right: 0; }
 }
 
+/* 登录/注册弹窗 */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(90, 58, 68, 0.5);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.auth-overlay.open { opacity: 1; pointer-events: auto; }
+
+.auth-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  background: white;
+  border-radius: 28px;
+  padding: 2.5rem;
+  width: 420px;
+  max-width: 92vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  z-index: 201;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 30px 60px rgba(90, 58, 68, 0.3);
+}
+.auth-modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+
+.auth-modal .auth-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  transition: all 0.2s;
+}
+.auth-modal .auth-close:hover { background: var(--primary-light); color: var(--primary); }
+
+.auth-modal .auth-bunny {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1rem;
+}
+
+.auth-modal h2 {
+  font-family: 'Fredoka', sans-serif;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+
+.auth-modal .auth-sub {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.auth-modal .form-group {
+  margin-bottom: 1rem;
+}
+
+.auth-modal .form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 0.4rem;
+}
+
+.auth-modal .form-group input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  outline: none;
+  background: var(--bg);
+}
+.auth-modal .form-group input:focus { border-color: var(--primary); }
+
+.auth-modal .auth-btn {
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: 'Quicksand', sans-serif;
+  margin-top: 0.5rem;
+}
+.auth-modal .auth-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 8px 20px var(--shadow); }
+
+.auth-modal .auth-switch {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+.auth-modal .auth-switch a { color: var(--primary); cursor: pointer; font-weight: 600; text-decoration: none; }
+.auth-modal .auth-switch a:hover { text-decoration: underline; }
+
+/* 用户下拉菜单 */
+.user-dropdown-wrap {
+  position: relative;
+}
+
+.user-avatar-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  background: var(--bg-soft);
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 1.1rem;
+  overflow: hidden;
+}
+.user-avatar-btn:hover { border-color: var(--primary-dark); box-shadow: 0 0 0 3px var(--shadow); transform: scale(1.05); }
+.user-avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 16px;
+  padding: 0.5rem;
+  min-width: 200px;
+  box-shadow: 0 15px 40px rgba(90, 58, 68, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px);
+  transition: all 0.25s ease;
+  z-index: 50;
+}
+.user-dropdown.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+.user-dropdown .user-info {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem;
+}
+.user-dropdown .user-info .name { font-weight: 700; color: var(--text); }
+.user-dropdown .user-info .sub { font-size: 0.8rem; color: var(--text-light); }
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--text-soft);
+  font-weight: 500;
+  border: none;
+  background: none;
+  width: 100%;
+  font-size: 0.9rem;
+  font-family: 'Quicksand', sans-serif;
+}
+.user-dropdown-item:hover { background: var(--bg-soft); color: var(--text); }
+.user-dropdown-item.logout { color: #e74c3c; }
+.user-dropdown-item.logout:hover { background: #fff0f0; }
+
+.user-dropdown-item i { width: 20px; text-align: center; font-size: 1rem; }
+
+/* 我的订单增强 */
+.order-filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 0;
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.order-filter-btn {
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  background: white;
+  color: var(--text-soft);
+  font-weight: 600;
+  font-size: 0.8rem;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: 'Quicksand', sans-serif;
+}
+.order-filter-btn:hover { border-color: var(--primary-light); }
+.order-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px var(--shadow); }
+
+/* 个人资料页面 */
+.profile-section {
+  max-width: 600px;
+  margin: 2rem auto;
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 30px rgba(255, 123, 169, 0.1);
+}
+
+.profile-section .profile-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.profile-section .profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--primary);
+  border: 3px solid var(--primary-light);
+  overflow: hidden;
+}
+.profile-section .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-section .profile-name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* 空状态通用 */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-light);
+}
+
+@media (max-width: 768px) {
+  .auth-modal { padding: 1.8rem; width: 95vw; }
+  .profile-section { padding: 1.5rem; }
+  .user-dropdown { right: -20px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;

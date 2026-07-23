@@ -21,30 +21,31 @@ pub fn DishStore::new() -> DishStore {
 
 /// 从 CSV 行解析菜品
 pub fn Dish::from_csv_row(row : String) -> Result[Dish, String] {
-  let fields = row.split(",").map(fn(sv) { sv.to_string() }).to_array()
+  let fields = row.split(",").map(fn(sv) { sv.to_owned() }).to_array()
   if fields.length() < 7 {
     return Err("Invalid CSV row: insufficient fields")
   }
-  let id_str = fields[0].trim().to_string()
-  let id = match id_str.parse_int() {
-    Ok(v) => v
-    Err(_) => return Err("Invalid id")
+  let id_str = fields[0].trim().to_owned()
+  let id = try {
+    @string.parse_int(id_str)
+  } catch {
+    _ => return Err("Invalid id")
   }
-  let price_str = fields[3].trim().to_string()
+  let price_str = fields[3].trim().to_owned()
   let price = try {
-    Float::from_double(@strconv.parse_double(price_str))
+    Float::from_double(@string.parse_double(price_str))
   } catch {
     _ => 0.0
   }
   Ok({
     id: id,
-    name: fields[1].trim().to_string(),
-    desc: fields[2].trim().to_string(),
+    name: fields[1].trim().to_owned(),
+    desc: fields[2].trim().to_owned(),
     price: price,
-    category: fields[4].trim().to_string(),
-    tag: fields[5].trim().to_string(),
-    tag_type: fields[6].trim().to_string(),
-    svg: if fields.length() > 7 { fields[7].trim().to_string() } else { "" },
+    category: fields[4].trim().to_owned(),
+    tag: fields[5].trim().to_owned(),
+    tag_type: fields[6].trim().to_owned(),
+    svg: if fields.length() > 7 { fields[7].trim().to_owned() } else { "" },
   })
 }
 
