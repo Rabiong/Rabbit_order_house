@@ -55,6 +55,8 @@ function agentHandleKey(event) {
 
 function renderAgentMessages() {
   const container = document.getElementById('agentMessages');
+  let lastTime = '';
+  
   container.innerHTML = chatAgent.messages.map(msg => {
     if (msg.role === 'typing') {
       return '<div class="agent-msg agent-msg-typing"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';
@@ -63,15 +65,22 @@ function renderAgentMessages() {
     const isUser = msg.role === 'user';
     const msgClass = isUser ? 'agent-msg-user' : 'agent-msg-bot';
     
+    // 时间分隔
+    let timeSep = '';
+    if (msg.time && msg.time !== lastTime) {
+      lastTime = msg.time;
+      timeSep = `<div class="agent-time-sep">${msg.time}</div>`;
+    }
+    
     let content = '';
     if (!isUser && msg.type === 'confirm') {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>
         <div class="agent-msg-actions">
           <button class="agent-action-btn primary" onclick="agentConfirmOrder()">✅ 确认下单</button>
           <button class="agent-action-btn" onclick="agentCancelOrder()">↩️ 再看看</button>
         </div>`;
     } else if (!isUser && msg.type === 'recommend' && msg.recommendations) {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>
         <div class="agent-rec-cards">
           ${msg.recommendations.map(d => `
             <div class="agent-rec-card" onclick="agentAddRec(${d.id})">
@@ -85,27 +94,27 @@ function renderAgentMessages() {
           `).join('')}
         </div>`;
     } else if (!isUser && msg.type === 'menu') {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>`;
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>`;
     } else if (!isUser && msg.type === 'cart') {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>
         <div class="agent-msg-actions">
           <button class="agent-action-btn primary" onclick="agentSendSuggestion('下单')">💰 去结算</button>
         </div>`;
     } else if (!isUser && msg.type === 'orders') {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>
         <div class="agent-msg-actions">
           <button class="agent-action-btn" onclick="agentSendSuggestion('看看菜单')">🍽️ 继续点餐</button>
         </div>`;
     } else if (!isUser && msg.action === 'require_login') {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text)}</div>
+      content = `<div class="agent-msg-text">${formatText(msg.text)}</div>
         <div class="agent-msg-actions">
           <button class="agent-action-btn primary" onclick="toggleAgent();showAuthModal()">🔑 去登录</button>
         </div>`;
     } else {
-      content = `<div class="agent-msg-text">${this.formatText(msg.text || '')}</div>`;
+      content = `<div class="agent-msg-text">${formatText(msg.text || '')}</div>`;
     }
     
-    return `<div class="agent-msg ${msgClass}">${content}</div>`;
+    return `${timeSep}<div class="agent-msg ${msgClass}">${content}</div>`;
   }).join('');
   
   scrollAgentToBottom();
