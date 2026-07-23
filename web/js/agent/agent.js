@@ -12,6 +12,30 @@ class ChatAgent {
     this.lastOrderItem = null;
     this.listeners = [];
     this.typingTimer = null;
+    this.storageKey = 'bunny_agent_session';
+    this.restoreSession();
+  }
+
+  restoreSession() {
+    try {
+      const saved = sessionStorage.getItem(this.storageKey);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.messages && Array.isArray(data.messages)) {
+          this.messages = data.messages;
+          this.lastOrderItem = data.lastOrderItem || null;
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  saveSession() {
+    try {
+      sessionStorage.setItem(this.storageKey, JSON.stringify({
+        messages: this.messages.filter(m => m.role !== 'typing'),
+        lastOrderItem: this.lastOrderItem
+      }));
+    } catch (e) { /* ignore */ }
   }
 
   onUpdate(callback) {
@@ -66,6 +90,14 @@ class ChatAgent {
       id: Date.now() + Math.random(),
       time: new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
     });
+    this.saveSession();
+    this.notify();
+  }
+
+  clearSession() {
+    this.messages = [];
+    this.lastOrderItem = null;
+    sessionStorage.removeItem(this.storageKey);
     this.notify();
   }
 
