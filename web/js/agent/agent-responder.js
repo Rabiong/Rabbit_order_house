@@ -181,13 +181,20 @@ class AgentResponder {
       return { text: '你还没有下过单呢，想试试吗？🥕', type: 'info' };
     }
     const statusNames = { pending: '⏳ 等待处理', preparing: '🍳 准备中', completed: '✅ 已完成', cancelled: '❌ 已取消' };
-    const recent = userOrders.slice(-3).reverse();
-    const orderText = recent.map(o => {
+    const recent = userOrders.slice(-5).reverse();
+    const totalSpent = userOrders.reduce((s, o) => s + o.total, 0);
+    const completedCount = userOrders.filter(o => o.status === 'completed').length;
+    
+    let orderText = '';
+    recent.forEach((o, i) => {
       const items = o.items.map(i => `${i.name}×${i.qty}`).join('、');
-      return `  #${o.id} ${statusNames[o.status] || o.status}\n  ${items} — ¥${o.total}`;
-    }).join('\n\n');
+      const addr = o.address || '';
+      orderText += `**#${o.id}** ${statusNames[o.status] || o.status}\n  ${items} — ¥${o.total}\n  ${o.time || ''}${addr ? ' → ' + addr : ''}`;
+      if (i < recent.length - 1) orderText += '\n\n';
+    });
+    
     return {
-      text: `你最近的订单：\n\n${orderText}\n\n需要什么帮助吗？`,
+      text: `📋 你共下过 **${userOrders.length}** 单，已完成 **${completedCount}** 单，累计消费 **¥${totalSpent}**\n\n最近订单：\n${orderText}\n\n需要什么帮助吗？`,
       type: 'orders'
     };
   }
