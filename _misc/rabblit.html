@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunny Bites · 兔兔小厨房</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #fff0f5;
+    --bg-soft: #ffe4ec;
+    --bg-deep: #ffd1dc;
+    --primary: #ff7ba9;
+    --primary-dark: #e85d8a;
+    --primary-light: #ffb3c8;
+    --accent: #ff9a56;
+    --accent-light: #ffc89a;
+    --mint: #7fdcb8;
+    --mint-light: #b5e8d4;
+    --cream: #fff8f0;
+    --text: #5a3a44;
+    --text-soft: #8a6770;
+    --text-light: #b89ba3;
+    --border: #ffd1dc;
+    --shadow: rgba(255, 123, 169, 0.2);
+  }
+  
+  * { box-sizing: border-box; }
+  
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    margin: 0;
+  }
+  
+  h1, h2, h3, .display {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+  }
+  
+  /* 背景装饰 */
+  .bg-decoration {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+  }
+  
+  .blob-1 { width: 500px; height: 500px; background: var(--primary-light); top: -100px; left: -100px; animation: float 20s ease-in-out infinite; }
+  .blob-2 { width: 400px; height: 400px; background: var(--accent-light); top: 30%; right: -100px; animation: float 25s ease-in-out infinite reverse; }
+  .blob-3 { width: 350px; height: 350px; background: var(--mint-light); bottom: 10%; left: 20%; animation: float 30s ease-in-out infinite; }
+  
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(50px, -30px) scale(1.1); }
+    66% { transform: translate(-30px, 40px) scale(0.95); }
+  }
+  
+  /* 飘落小元素 */
+  .falling-items { position: fixed; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+  .falling-item { position: absolute; top: -50px; animation: fall linear infinite; }
+  
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+  }
+  
+  /* 导航 */
+  nav {
+    background: rgba(255, 240, 245, 0.75);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .nav-link { position: relative; transition: color 0.3s; cursor: pointer; }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary);
+    border-radius: 2px;
+    transition: all 0.3s;
+    transform: translateX(-50%);
+  }
+  .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+  .nav-link:hover, .nav-link.active { color: var(--primary); }
+  
+  /* 购物车按钮 */
+  .cart-btn {
+    position: relative;
+    background: var(--primary);
+    color: white;
+    padding: 0.65rem 1.3rem;
+    border-radius: 999px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px var(--shadow);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Quicksand', sans-serif;
+  }
+  .cart-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
+  .cart-btn:active { transform: translateY(0); }
+  
+  .cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--accent);
+    color: white;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border: 2px solid white;
+  }
+  
+  .cart-badge.bounce { animation: badgeBounce 0.5s ease; }
+  @keyframes badgeBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+  }
+  
+  /* Hero */
+  .hero { min-height: 100vh; position: relative; display: flex; align-items: center; padding: 6rem 2rem 2rem; }
+  
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1.05;
+    font-weight: 700;
+    color: var(--text);
+  }
+  
+  .hero-title .accent {
+    color: var(--primary);
+    position: relative;
+    display: inline-block;
+  }
+  
+  .hero-title .accent::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: -4px;
+    right: -4px;
+    height: 14px;
+    background: var(--accent-light);
+    z-index: -1;
+    border-radius: 8px;
+    opacity: 0.5;
+    transform: rotate(-1deg);
+  }
+  
+  /* 兔子吉祥物 */
+  .bunny-mascot { position: relative; width: 100%; max-width: 500px; cursor: pointer; }
+  .bunny-ear { transform-origin: bottom center; animation: earWiggle 4s ease-in-out infinite; }
+  .bunny-ear-right { animation-delay: 0.5s; }
+  @keyframes earWiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-6deg); }
+    75% { transform: rotate(6deg); }
+  }
+  
+  .bunny-body-wrap { animation: bunnyBounce 3s ease-in-out infinite; }
+  @keyframes bunnyBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  
+  .bunny-cheek { animation: cheekPulse 2s ease-in-out infinite; transform-origin: center; }
+  @keyframes cheekPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.08); }
+  }
+  
+  .bunny-eye { animation: blink 4s infinite; transform-origin: center; }
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+  
+  /* 蒸汽 */
+  .steam {
+    position: absolute;
+    width: 10px;
+    height: 40px;
+    background: linear-gradient(to top, transparent, rgba(255,255,255,0.9));
+    border-radius: 50%;
+    filter: blur(3px);
+    animation: steamRise 2.5s ease-out infinite;
+  }
+  @keyframes steamRise {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    20% { opacity: 0.9; }
+    100% { transform: translateY(-80px) scale(2.5); opacity: 0; }
+  }
+  
+  /* 按钮 */
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 0.9rem 2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: all 0.3s;
+    box-shadow: 0 6px 20px var(--shadow);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+    cursor: pointer;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+  }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-3px); box-shadow: 0 10px 25px var(--shadow); }
+  .btn-primary:active { transform: translateY(-1px); }
+  
+  .btn-secondary {
+    background: white;
+    color: var(--primary);
+    padding: 0.9rem 2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: 2px solid var(--primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+  }
+  .btn-secondary:hover { background: var(--bg-soft); transform: translateY(-3px); }
+  
+  /* 分类 */
+  .category-pill {
+    padding: 0.65rem 1.5rem;
+    border-radius: 999px;
+    background: white;
+    color: var(--text-soft);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+    white-space: nowrap;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.95rem;
+  }
+  .category-pill:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .category-pill.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 15px var(--shadow);
+    border-color: var(--primary);
+  }
+  
+  /* 菜品卡片 */
+  .dish-card {
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 20px rgba(255, 123, 169, 0.08);
+    position: relative;
+  }
+  .dish-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(255, 123, 169, 0.2); }
+  
+  .dish-image { aspect-ratio: 4 / 3; overflow: hidden; position: relative; }
+  .dish-image svg { width: 100%; height: 100%; transition: transform 0.5s; }
+  .dish-card:hover .dish-image svg { transform: scale(1.08) rotate(-2deg); }
+  
+  .dish-tag {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--primary);
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  
+  .dish-tag.hot { color: var(--accent); }
+  .dish-tag.new { color: var(--mint); }
+  .dish-tag.limited { color: #c47be8; }
+  
+  .add-btn {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px var(--shadow);
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  .add-btn:hover { background: var(--primary-dark); transform: scale(1.15) rotate(90deg); }
+  .add-btn:active { transform: scale(0.95); }
+  
+  /* 购物车面板 */
+  .cart-panel {
+    position: fixed;
+    top: 0;
+    right: -450px;
+    width: 420px;
+    max-width: 90vw;
+    height: 100vh;
+    background: var(--cream);
+    z-index: 100;
+    transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+  }
+  .cart-panel.open { right: 0; }
+  
+  .cart-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(90, 58, 68, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .cart-overlay.open { opacity: 1; pointer-events: auto; }
+  
+  .cart-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 0.8rem;
+    transition: all 0.3s;
+    align-items: center;
+  }
+  .cart-item:hover { transform: translateX(-4px); box-shadow: 0 4px 12px rgba(255, 123, 169, 0.1); }
+  
+  .cart-item-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    color: var(--primary);
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+  }
+  .qty-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
+  
+  /* Toast */
+  .toast-container {
+    position: fixed;
+    top: 100px;
+    right: 30px;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+  
+  .toast {
+    background: white;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(255, 123, 169, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-left: 4px solid var(--primary);
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s forwards;
+    pointer-events: auto;
+    min-width: 250px;
+  }
+  
+  @keyframes toastIn {
+    from { transform: translateX(120%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes toastOut {
+    to { transform: translateX(120%); opacity: 0; }
+  }
+  
+  /* 飞出动画 */
+  .fly-dot {
+    position: fixed;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: 50%;
+    z-index: 150;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.5, -0.5, 0.5, 1.5);
+    box-shadow: 0 0 20px var(--primary);
+  }
+  
+  /* 滚动揭示 */
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  
+  /* 特色板块 */
+  .feature-card {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    transition: all 0.4s;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid transparent;
+  }
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px var(--shadow);
+    border-color: var(--primary-light);
+  }
+  
+  .feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* 厨房条纹 */
+  .kitchen-stripe {
+    background: repeating-linear-gradient(45deg, var(--primary-light), var(--primary-light) 12px, white 12px, white 24px);
+    height: 24px;
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* 价格 */
+  .price {
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 600;
+    color: var(--primary-dark);
+  }
+  
+  /* 步骤数字 */
+  .step-number {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 20px var(--shadow);
+  }
+  
+  /* 滚动条 */
+  ::-webkit-scrollbar { width: 10px; }
+  ::-webkit-scrollbar-track { background: var(--bg-soft); }
+  ::-webkit-scrollbar-thumb { background: var(--primary-light); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+  
+  /* 空购物车 */
+  .empty-cart {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--text-light);
+  }
+  
+  /* 庆祝粒子 */
+  .confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    z-index: 300;
+    pointer-events: none;
+    animation: confettiFall 3s ease-out forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+  
+  /* 响应式 */
+  @media (max-width: 768px) {
+    .hero { flex-direction: column; text-align: center; padding-top: 6rem; }
+    .hero-content { max-width: 100%; }
+    .bunny-mascot { margin-top: 2rem; max-width: 320px; }
+    .toast-container { right: 10px; left: 10px; }
+    .toast { min-width: auto; }
+  }
+  
+  /* 关键动画 prefers-reduced-motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- 背景装饰 -->
+<div class="bg-decoration">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- 飘落小元素 -->
+<div class="falling-items" id="fallingItems"></div>
+
+<!-- 导航 -->
+<header class="fixed top-0 w-full z-50">
+  <nav class="flex items-center justify-between px-6 md:px-12 py-4">
+    <div class="flex items-center gap-2">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <ellipse cx="16" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="16" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+        <ellipse cx="28" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="28" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+        <circle cx="22" cy="26" r="13" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="17" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+        <ellipse cx="27" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+        <circle cx="18" cy="24" r="1.5" fill="#5a3a44"/>
+        <circle cx="26" cy="24" r="1.5" fill="#5a3a44"/>
+        <path d="M 21 28 Q 22 29.5 23 28" stroke="#5a3a44" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <circle cx="22" cy="27.5" r="0.8" fill="#ff7ba9"/>
+      </svg>
+      <span class="display text-xl font-bold" style="color: var(--primary-dark);">Bunny Bites</span>
+    </div>
+    
+    <ul class="hidden md:flex items-center gap-8 font-medium">
+      <li><a class="nav-link active" onclick="scrollToSection('home')">首页</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('menu')">菜单</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('features')">特色</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('kitchen')">小厨房</a></li>
+    </ul>
+    
+    <button class="cart-btn" onclick="toggleCart()" aria-label="打开购物车">
+      <i class="fas fa-shopping-basket"></i>
+      <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section id="home" class="hero relative z-10">
+  <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-8 items-center">
+    <div class="hero-content">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm mb-6">
+        <span class="w-2 h-2 rounded-full" style="background: var(--mint); box-shadow: 0 0 8px var(--mint);"></span>
+        <span class="text-sm font-medium">小厨房正在营业中</span>
+      </div>
+      <h1 class="hero-title mb-6">
+        嗨，我是<span class="accent">兔兔</span><br>
+        今天想吃点什么呢？
+      </h1>
+      <p class="text-lg mb-8" style="color: var(--text-soft); max-width: 480px;">
+        欢迎来到 Bunny Bites 小厨房！这里有用爱心烘焙的胡萝卜蛋糕、绵绵的草莓奶昔，还有兔兔最爱的隐藏菜单哦～
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <button class="btn-primary" onclick="scrollToSection('menu')">
+          <i class="fas fa-utensils"></i>
+          看看菜单
+        </button>
+        <button class="btn-secondary" onclick="bunnyWave()">
+          <i class="fas fa-hand-sparkles"></i>
+          跟兔兔打招呼
+        </button>
+      </div>
+      
+      <div class="flex gap-8 mt-12">
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--primary);">120+</div>
+          <div class="text-sm" style="color: var(--text-soft);">美味菜品</div>
+        </div>
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--accent);">4.9</div>
+          <div class="text-sm" style="color: var(--text-soft);">兔兔评分</div>
+        </div>
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--mint);">15min</div>
+          <div class="text-sm" style="color: var(--text-soft);">最快出餐</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 兔子吉祥物 -->
+    <div class="bunny-mascot mx-auto" id="bunnyMascot">
+      <svg viewBox="0 0 500 500" class="w-full">
+        <!-- 阴影 -->
+        <ellipse cx="250" cy="470" rx="160" ry="18" fill="rgba(255, 123, 169, 0.25)"/>
+        
+        <!-- 蒸汽 -->
+        <g>
+          <ellipse cx="180" cy="240" rx="6" ry="12" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="240;200;240" dur="2.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="200" cy="230" rx="5" ry="10" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="230;190;230" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="220" cy="240" rx="6" ry="12" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="240;200;240" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+        
+        <g class="bunny-body-wrap">
+          <!-- 身体 -->
+          <ellipse cx="250" cy="360" rx="130" ry="105" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 围裙 -->
+          <path d="M 195 295 Q 250 285 305 295 L 325 410 Q 250 430 175 410 Z" fill="#ff7ba9"/>
+          <path d="M 195 295 Q 250 285 305 295 L 305 295" stroke="#e85d8a" stroke-width="2" fill="none"/>
+          <!-- 围裙口袋 -->
+          <rect x="220" y="350" width="60" height="35" rx="6" fill="#e85d8a" opacity="0.4"/>
+          <!-- 围裙花纹 -->
+          <circle cx="210" cy="380" r="3" fill="#fff" opacity="0.6"/>
+          <circle cx="290" cy="380" r="3" fill="#fff" opacity="0.6"/>
+          <circle cx="250" cy="400" r="3" fill="#fff" opacity="0.6"/>
+          
+          <!-- 围裙带子 -->
+          <path d="M 220 295 Q 215 270 230 250" stroke="#ff7ba9" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M 280 295 Q 285 270 270 250" stroke="#ff7ba9" stroke-width="6" fill="none" stroke-linecap="round"/>
+          
+          <!-- 左手 -->
+          <ellipse cx="140" cy="340" rx="32" ry="38" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 右手 (拿汤勺) -->
+          <ellipse cx="370" cy="320" rx="32" ry="38" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          <!-- 汤勺 -->
+          <g transform="translate(395, 290) rotate(30)">
+            <rect x="-3" y="0" width="6" height="50" rx="3" fill="#c4956b"/>
+            <ellipse cx="0" cy="-8" rx="14" ry="18" fill="#ff7ba9" stroke="#e85d8a" stroke-width="2"/>
+            <ellipse cx="0" cy="-12" rx="9" ry="11" fill="#ffb3c8"/>
+          </g>
+          
+          <!-- 头 -->
+          <circle cx="250" cy="200" r="105" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 耳朵 -->
+          <g class="bunny-ear">
+            <ellipse cx="205" cy="80" rx="26" ry="85" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+            <ellipse cx="205" cy="95" rx="14" ry="65" fill="#ffb3c8"/>
+          </g>
+          <g class="bunny-ear bunny-ear-right">
+            <ellipse cx="295" cy="80" rx="26" ry="85" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+            <ellipse cx="295" cy="95" rx="14" ry="65" fill="#ffb3c8"/>
+          </g>
+          
+          <!-- 腮红 -->
+          <ellipse cx="190" cy="225" rx="20" ry="13" fill="#ff9ec5" opacity="0.7" class="bunny-cheek"/>
+          <ellipse cx="310" cy="225" rx="20" ry="13" fill="#ff9ec5" opacity="0.7" class="bunny-cheek"/>
+          
+          <!-- 眼睛 -->
+          <g class="bunny-eye">
+            <ellipse cx="215" cy="195" rx="9" ry="12" fill="#5a3a44"/>
+            <ellipse cx="285" cy="195" rx="9" ry="12" fill="#5a3a44"/>
+            <circle cx="218" cy="191" r="3.5" fill="#fff"/>
+            <circle cx="288" cy="191" r="3.5" fill="#fff"/>
+            <circle cx="213" cy="200" r="1.5" fill="#fff"/>
+            <circle cx="283" cy="200" r="1.5" fill="#fff"/>
+          </g>
+          
+          <!-- 鼻子 -->
+          <path d="M 244 215 Q 250 222 256 215 Q 250 228 244 215 Z" fill="#ff7ba9"/>
+          
+          <!-- 嘴 -->
+          <path d="M 250 222 L 250 232" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M 250 232 Q 240 240 232 234" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M 250 232 Q 260 240 268 234" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          
+          <!-- 蝴蝶结 -->
+          <g transform="translate(165, 145)">
+            <path d="M 0 0 L -22 -16 L -22 16 Z" fill="#ff7ba9" stroke="#e85d8a" stroke-width="1.5"/>
+            <path d="M 0 0 L 22 -16 L 22 16 Z" fill="#ff7ba9" stroke="#e85d8a" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="6" fill="#e85d8a"/>
+            <circle cx="0" cy="0" r="3" fill="#ff9ec5"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 厨房条纹 -->
+<div class="kitchen-stripe"></div>
+
+<!-- 菜单 -->
+<section id="menu" class="py-20 px-6 relative z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: var(--bg-soft); color: var(--primary);">
+        今日菜单
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3" style="color: var(--text);">
+        兔兔的拿手好菜
+      </h2>
+      <p style="color: var(--text-soft);">每一道都是用心准备，记得要吃光光哦～</p>
+    </div>
+    
+    <div class="flex gap-3 overflow-x-auto pb-4 mb-10 justify-start md:justify-center reveal" id="categories">
+      <button class="category-pill active" data-category="all">全部</button>
+      <button class="category-pill" data-category="main">主食</button>
+      <button class="category-pill" data-category="dessert">甜品</button>
+      <button class="category-pill" data-category="drink">饮品</button>
+      <button class="category-pill" data-category="salad">沙拉</button>
+      <button class="category-pill" data-category="limited">限定</button>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="dishGrid"></div>
+  </div>
+</section>
+
+<!-- 特色板块 -->
+<section id="features" class="py-20 px-6 relative z-10" style="background: linear-gradient(180deg, transparent, var(--bg-soft) 30%, var(--bg-soft) 70%, transparent);">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: white; color: var(--accent);">
+        为什么选我们
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3" style="color: var(--text);">
+        小厨房的满满心意
+      </h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: var(--bg-soft); color: var(--primary);">
+          <i class="fas fa-carrot"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">现采现做</h3>
+        <p style="color: var(--text-soft);">每天清晨从兔兔的菜园里新鲜采摘，绝不使用隔夜食材，每一口都是大自然的味道。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: #fff4e6; color: var(--accent);">
+          <i class="fas fa-fire"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">慢火细炖</h3>
+        <p style="color: var(--text-soft);">每一道菜都用小火慢慢熬煮，把所有好味道都锁在里面，让舌头跳起舞来。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: #e6f9f1; color: var(--mint);">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">健康配方</h3>
+        <p style="color: var(--text-soft);">减糖减油配方，让小兔子们吃得开心又没有负担，连胡萝卜都变得更甜了。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 小厨房介绍 -->
+<section id="kitchen" class="py-20 px-6 relative z-10">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    <div class="reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: var(--bg-soft); color: var(--primary);">
+        关于小厨房
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-6" style="color: var(--text);">
+        一个充满胡萝卜香气<br>的小小梦想
+      </h2>
+      <p class="mb-6" style="color: var(--text-soft);">
+        Bunny Bites 起源于一只名叫 Mochi 的小兔子的梦想。她最爱在自家小厨房里捣鼓各种料理，从最初的胡萝卜松饼到现在的全套菜单，每一道菜都藏着她的心意。
+      </p>
+      <p class="mb-8" style="color: var(--text-soft);">
+        现在的小厨房不仅有 Mochi，还有她的好朋友们一起帮忙。我们希望每一位光临的客人，都能在这里找到一份属于自己的温暖与甜蜜。
+      </p>
+      
+      <div class="space-y-5">
+        <div class="flex gap-4 items-start">
+          <div class="step-number">1</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">挑选喜欢的菜品</h4>
+            <p class="text-sm" style="color: var(--text-soft);">浏览菜单，把心动的菜品加入购物篮</p>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="step-number">2</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">兔兔开始制作</h4>
+            <p class="text-sm" style="color: var(--text-soft);">Mochi 接到订单后立刻开工，慢工出细活</p>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="step-number">3</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">配送到你家</h4>
+            <p class="text-sm" style="color: var(--text-soft);">热腾腾的美食由小兔快递员送达</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="relative reveal">
+      <svg viewBox="0 0 500 500" class="w-full">
+        <!-- 背景 -->
+        <rect width="500" height="500" rx="32" fill="#fff8f0"/>
+        
+        <!-- 墙砖图案 -->
+        <pattern id="tiles" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#ffe4ec"/>
+          <rect width="58" height="58" x="1" y="1" fill="#fff0f5" rx="4"/>
+        </pattern>
+        <rect width="500" height="280" fill="url(#tiles)"/>
+        
+        <!-- 灶台 -->
+        <rect x="40" y="280" width="420" height="180" rx="12" fill="#ffd1dc"/>
+        <rect x="40" y="280" width="420" height="20" fill="#ff7ba9"/>
+        
+        <!-- 锅1 -->
+        <circle cx="160" cy="340" r="55" fill="#5a3a44"/>
+        <circle cx="160" cy="340" r="48" fill="#8a6770"/>
+        <ellipse cx="160" cy="335" rx="40" ry="20" fill="#ff9a56" opacity="0.8"/>
+        <circle cx="145" cy="328" r="6" fill="#ff7ba9"/>
+        <circle cx="170" cy="332" r="5" fill="#7fdcb8"/>
+        <circle cx="180" cy="345" r="4" fill="#ff9a56"/>
+        <!-- 蒸汽 -->
+        <ellipse cx="150" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="170" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </ellipse>
+        
+        <!-- 锅2 -->
+        <circle cx="340" cy="340" r="55" fill="#5a3a44"/>
+        <circle cx="340" cy="340" r="48" fill="#8a6770"/>
+        <ellipse cx="340" cy="335" rx="40" ry="20" fill="#fff8f0"/>
+        <circle cx="325" cy="330" r="5" fill="#ff7ba9"/>
+        <circle cx="345" cy="335" r="4" fill="#ff9a56"/>
+        <circle cx="355" cy="328" r="6" fill="#7fdcb8"/>
+        <!-- 蒸汽 -->
+        <ellipse cx="330" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="350" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2.2s" begin="0.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2.2s" begin="0.8s" repeatCount="indefinite"/>
+        </ellipse>
+        
+        <!-- 挂着的厨具 -->
+        <rect x="80" y="20" width="6" height="60" fill="#c4956b"/>
+        <circle cx="83" cy="85" r="15" fill="#ff7ba9" stroke="#e85d8a" stroke-width="2"/>
+        
+        <rect x="130" y="20" width="6" height="55" fill="#c4956b"/>
+        <ellipse cx="133" cy="80" rx="20" ry="12" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        
+        <rect x="380" y="20" width="6" height="65" fill="#c4956b"/>
+        <rect x="365" y="80" width="36" height="22" rx="4" fill="#ff9a56" stroke="#e8821a" stroke-width="2"/>
+        
+        <!-- 装饰小兔头像 -->
+        <g transform="translate(250, 130)">
+          <ellipse cx="-22" cy="-30" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="22" cy="-30" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="-22" cy="-28" rx="3" ry="13" fill="#ffb3c8"/>
+          <ellipse cx="22" cy="-28" rx="3" ry="13" fill="#ffb3c8"/>
+          <circle cx="0" cy="0" r="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+          <ellipse cx="-10" cy="3" rx="5" ry="3" fill="#ff9ec5" opacity="0.7"/>
+          <ellipse cx="10" cy="3" rx="5" ry="3" fill="#ff9ec5" opacity="0.7"/>
+          <circle cx="-7" cy="-3" r="2.5" fill="#5a3a44"/>
+          <circle cx="7" cy="-3" r="2.5" fill="#5a3a44"/>
+          <path d="M -2 4 Q 0 7 2 4" stroke="#5a3a44" stroke-width="1" fill="none"/>
+        </g>
+        
+        <!-- 爱心 -->
+        <path d="M 100 180 C 95 175, 85 175, 85 185 C 85 195, 100 205, 100 205 C 100 205, 115 195, 115 185 C 115 175, 105 175, 100 180 Z" fill="#ff7ba9" opacity="0.6">
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 400 200 C 395 195, 385 195, 385 205 C 385 215, 400 225, 400 225 C 400 225, 415 215, 415 205 C 415 195, 405 195, 400 200 Z" fill="#ff9a56" opacity="0.6">
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 底部 -->
+<footer class="relative z-10 pt-16 pb-8 px-6" style="background: linear-gradient(180deg, transparent, var(--bg-soft));">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-8 mb-10">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg width="36" height="36" viewBox="0 0 44 44">
+            <ellipse cx="16" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="28" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="16" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+            <ellipse cx="28" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+            <circle cx="22" cy="26" r="13" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="17" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+            <ellipse cx="27" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+            <circle cx="18" cy="24" r="1.5" fill="#5a3a44"/>
+            <circle cx="26" cy="24" r="1.5" fill="#5a3a44"/>
+          </svg>
+          <span class="display text-lg font-bold" style="color: var(--primary-dark);">Bunny Bites</span>
+        </div>
+        <p class="text-sm" style="color: var(--text-soft);">用爱心烹饪每一道菜，让每一餐都成为小确幸。</p>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">菜单</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-soft);">
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">主食</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">甜品</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">饮品</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">限定</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">关于</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-soft);">
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('kitchen')">小厨房故事</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('features')">我们的特色</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer">加入我们</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer">联系兔兔</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">关注我们</h4>
+        <div class="flex gap-3">
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='white';this.style.color='var(--primary)'"><i class="fab fa-weibo"></i></a>
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='white';this.style.color='var(--primary)'"><i class="fab fa-weixin"></i></a>
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='white';this.style.color='var(--primary)'"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="pt-6 border-t text-center text-sm" style="border-color: var(--border); color: var(--text-light);">
+      <p>© 2024 Bunny Bites · 兔兔小厨房 · 用 Moonbit 与爱打造</p>
+    </div>
+  </div>
+</footer>
+
+<!-- 购物车面板 -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<aside class="cart-panel" id="cartPanel">
+  <div class="p-6 border-b" style="border-color: var(--border);">
+    <div class="flex items-center justify-between">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-shopping-basket" style="color: var(--primary);"></i>
+        购物篮
+      </h3>
+      <button onclick="toggleCart()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);" onmouseover="this.style.background='var(--primary)';this.style.color='white'" onmouseout="this.style.background='var(--bg-soft)';this.style.color='var(--text)'">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
+  
+  <div class="p-6 border-t" style="border-color: var(--border); background: white;">
+    <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
+      <span>小计</span>
+      <span id="subtotal">¥0</span>
+    </div>
+    <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
+      <span>配送费</span>
+      <span>¥6</span>
+    </div>
+    <div class="flex justify-between mb-4 text-lg font-bold">
+      <span>总计</span>
+      <span class="price" id="total">¥6</span>
+    </div>
+    <button class="btn-primary w-full justify-center" onclick="checkout()">
+      <i class="fas fa-paper-plane"></i>
+      下单啦
+    </button>
+  </div>
+</aside>
+
+<!-- Toast 容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  // 菜品数据
+  const dishes = [
+    {
+      id: 1, name: '胡萝卜松饼', desc: '新鲜胡萝卜烘焙，松软香甜', price: 18, category: 'dessert', tag: '招牌', tagType: 'hot',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe4ec"/><stop offset="1" stop-color="#ffc0d4"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg1)"/><ellipse cx="100" cy="120" rx="60" ry="8" fill="rgba(0,0,0,0.1)"/><path d="M 60 100 Q 60 60 100 60 Q 140 60 140 100 L 140 110 Q 100 120 60 110 Z" fill="#d4915c"/><rect x="55" y="95" width="90" height="12" rx="3" fill="#a87444"/><circle cx="80" cy="80" r="4" fill="#ff7ba9"/><circle cx="110" cy="75" r="3" fill="#7fdcb8"/><circle cx="125" cy="85" r="3" fill="#ff9a56"/><path d="M 95 55 L 90 40 M 100 55 L 100 38 M 105 55 L 110 40" stroke="#7fdcb8" stroke-width="2" stroke-linecap="round"/></svg>`
+    },
+    {
+      id: 2, name: '草莓奶昔', desc: '新鲜草莓与牛奶的完美融合', price: 22, category: 'drink', tag: '热卖', tagType: 'hot',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffc0d4"/><stop offset="1" stop-color="#ff9ec5"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg2)"/><ellipse cx="100" cy="135" rx="40" ry="6" fill="rgba(0,0,0,0.1)"/><path d="M 70 60 L 75 130 Q 100 138 125 130 L 130 60 Z" fill="#fff" stroke="#5a3a44" stroke-width="2"/><path d="M 72 75 L 128 75 Q 125 110 100 115 Q 75 110 72 75" fill="#ff7ba9"/><circle cx="85" cy="90" r="3" fill="#ff3866"/><circle cx="110" cy="95" r="3" fill="#ff3866"/><circle cx="100" cy="105" r="2.5" fill="#ff3866"/><path d="M 90 60 Q 95 40 105 50" stroke="#ff7ba9" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="90" cy="50" r="8" fill="#ff3866"/><circle cx="93" cy="47" r="2" fill="#fff" opacity="0.6"/><path d="M 88 45 L 86 38 M 92 44 L 92 36" stroke="#7fdcb8" stroke-width="1.5" stroke-linecap="round"/><path d="M 135 30 L 100 90" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg>`
+    },
+    {
+      id: 3, name: '兔兔便当', desc: '小兔子饭团配时令蔬菜', price: 38, category: 'main', tag: '推荐', tagType: '',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4e6"/><stop offset="1" stop-color="#ffc89a"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg3)"/><ellipse cx="100" cy="130" rx="70" ry="6" fill="rgba(0,0,0,0.1)"/><rect x="35" y="60" width="130" height="65" rx="8" fill="#8a6770"/><rect x="40" y="65" width="120" height="55" rx="5" fill="#fff8f0"/><rect x="45" y="70" width="55" height="45" rx="3" fill="#ffe4ec"/><rect x="105" y="70" width="50" height="45" rx="3" fill="#fff4e6"/><circle cx="72" cy="92" r="14" fill="#fff"/><ellipse cx="65" cy="80" rx="3" ry="8" fill="#fff"/><ellipse cx="79" cy="80" rx="3" ry="8" fill="#fff"/><ellipse cx="65" cy="80" rx="1.5" ry="5" fill="#ffb3c8"/><ellipse cx="79" cy="80" rx="1.5" ry="5" fill="#ffb3c8"/><circle cx="68" cy="92" r="1.5" fill="#5a3a44"/><circle cx="76" cy="92" r="1.5" fill="#5a3a44"/><ellipse cx="65" cy="97" rx="2" ry="1.5" fill="#ff9ec5" opacity="0.7"/><ellipse cx="79" cy="97" rx="2" ry="1.5" fill="#ff9ec5" opacity="0.7"/><circle cx="130" cy="85" r="5" fill="#ff9a56"/><circle cx="140" cy="95" r="4" fill="#7fdcb8"/><circle cx="125" cy="100" r="3" fill="#ff7ba9"/><circle cx="135" cy="105" r="3" fill="#ff9a56"/></svg>`
+    },
+    {
+      id: 4, name: '棉花糖可可', desc: '温暖可可配上软绵棉花糖', price: 26, category: 'drink', tag: '新品', tagType: 'new',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg4" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6f9f1"/><stop offset="1" stop-color="#b5e8d4"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg4)"/><ellipse cx="100" cy="135" rx="45" ry="6" fill="rgba(0,0,0,0.1)"/><path d="M 65 70 L 70 130 Q 100 138 130 130 L 135 70 Z" fill="#fff" stroke="#5a3a44" stroke-width="2"/><path d="M 67 85 L 133 85 Q 130 120 100 125 Q 70 120 67 85" fill="#7a4a2a"/><circle cx="85" cy="95" r="6" fill="#fff"/><circle cx="105" cy="100" r="7" fill="#fff"/><circle cx="95" cy="108" r="5" fill="#fff"/><circle cx="115" cy="92" r="5" fill="#fff"/><circle cx="88" cy="93" r="1.5" fill="#5a3a44"/><circle cx="107" cy="98" r="1.5" fill="#5a3a44"/><path d="M 90 95 Q 92 96 90 97" stroke="#5a3a44" stroke-width="0.8" fill="none"/><path d="M 110 100 Q 112 101 110 102" stroke="#5a3a44" stroke-width="0.8" fill="none"/><path d="M 130 50 L 105 80" stroke="#fff" stroke-width="4" stroke-linecap="round"/><ellipse cx="100" cy="55" rx="8" ry="6" fill="rgba(255,255,255,0.7)"><animate attributeName="cy" values="55;35;55" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.8;0" dur="2.5s" repeatCount="indefinite"/></ellipse></svg>`
+    },
+    {
+      id: 5, name: '蜂蜜松饼', desc: '层层叠叠淋上金黄蜂蜜', price: 28, category: 'dessert', tag: '热卖', tagType: 'hot',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg5" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4e6"/><stop offset="1" stop-color="#ffc89a"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg5)"/><ellipse cx="100" cy="130" rx="65" ry="6" fill="rgba(0,0,0,0.1)"/><ellipse cx="100" cy="125" rx="60" ry="8" fill="#a87444"/><ellipse cx="100" cy="115" rx="55" ry="10" fill="#d4915c"/><ellipse cx="100" cy="100" rx="50" ry="10" fill="#e8a878"/><ellipse cx="100" cy="85" rx="45" ry="10" fill="#d4915c"/><ellipse cx="100" cy="70" rx="40" ry="8" fill="#e8a878"/><circle cx="85" cy="70" r="4" fill="#ff7ba9"/><circle cx="105" cy="68" r="3" fill="#7fdcb8"/><circle cx="115" cy="72" r="3" fill="#ff9a56"/><path d="M 80 60 Q 85 40 100 50 Q 115 40 120 60" fill="#ffc000" stroke="#e8a500" stroke-width="1.5"/><circle cx="90" cy="55" r="2" fill="#fff" opacity="0.6"/></svg>`
+    },
+    {
+      id: 6, name: '抹茶冰淇淋', desc: '清新抹茶配香脆蛋筒', price: 24, category: 'dessert', tag: '推荐', tagType: '',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg6" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6f9f1"/><stop offset="1" stop-color="#7fdcb8"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg6)"/><ellipse cx="100" cy="135" rx="35" ry="5" fill="rgba(0,0,0,0.1)"/><path d="M 75 70 L 100 130 L 125 70 Z" fill="#d4915c"/><path d="M 80 75 L 100 120 L 120 75" fill="none" stroke="#a87444" stroke-width="1.5"/><path d="M 85 80 L 100 110 L 115 80" fill="none" stroke="#a87444" stroke-width="1"/><circle cx="100" cy="55" r="28" fill="#7fdcb8"/><circle cx="85" cy="60" r="22" fill="#5fb89a"/><circle cx="115" cy="60" r="22" fill="#5fb89a"/><circle cx="100" cy="40" r="20" fill="#a8e8c8"/><circle cx="92" cy="50" r="4" fill="#ff7ba9"/><circle cx="108" cy="45" r="3" fill="#ff9a56"/><circle cx="95" cy="35" r="2" fill="#fff" opacity="0.7"/><circle cx="105" cy="38" r="2" fill="#fff" opacity="0.7"/></svg>`
+    },
+    {
+      id: 7, name: '蓝莓优格', desc: '新鲜蓝莓配香浓优格', price: 20, category: 'salad', tag: '健康', tagType: 'new',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg7" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e6e6ff"/><stop offset="1" stop-color="#b8c4ff"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg7)"/><ellipse cx="100" cy="135" rx="45" ry="5" fill="rgba(0,0,0,0.1)"/><path d="M 65 70 L 70 130 Q 100 138 130 130 L 135 70 Z" fill="#fff" stroke="#5a3a44" stroke-width="2"/><path d="M 67 85 L 133 85 Q 130 120 100 125 Q 70 120 67 85" fill="#fff8f0"/><circle cx="80" cy="100" r="6" fill="#7c5ac4"/><circle cx="100" cy="95" r="7" fill="#7c5ac4"/><circle cx="120" cy="100" r="6" fill="#7c5ac4"/><circle cx="90" cy="110" r="5" fill="#7c5ac4"/><circle cx="115" cy="110" r="5" fill="#7c5ac4"/><circle cx="100" cy="105" r="4" fill="#7c5ac4"/><circle cx="82" cy="98" r="1.5" fill="#a888d4"/><circle cx="102" cy="93" r="1.5" fill="#a888d4"/><circle cx="118" cy="98" r="1.5" fill="#a888d4"/><path d="M 80 90 L 82 85 M 100 85 L 102 80 M 120 90 L 118 85" stroke="#7fdcb8" stroke-width="1.5" stroke-linecap="round"/></svg>`
+    },
+    {
+      id: 8, name: '玉米浓汤', desc: '香浓玉米熬制，温暖人心', price: 16, category: 'main', tag: '限定', tagType: 'limited',
+      svg: `<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="bg8" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff4e6"/><stop offset="1" stop-color="#ffc89a"/></linearGradient></defs><rect width="200" height="150" fill="url(#bg8)"/><ellipse cx="100" cy="135" rx="55" ry="5" fill="rgba(0,0,0,0.1)"/><ellipse cx="100" cy="130" rx="50" ry="8" fill="#fff" stroke="#5a3a44" stroke-width="2"/><ellipse cx="100" cy="125" rx="48" ry="7" fill="#fff8f0"/><path d="M 55 90 Q 55 70 100 70 Q 145 70 145 90 L 145 115 Q 100 125 55 115 Z" fill="#fff" stroke="#5a3a44" stroke-width="2"/><ellipse cx="100" cy="92" rx="42" ry="18" fill="#ffc000"/><circle cx="80" cy="88" r="4" fill="#ff9a56"/><circle cx="115" cy="85" r="5" fill="#ff9a56"/><circle cx="95" cy="95" r="3" fill="#ff9a56"/><circle cx="120" cy="95" r="4" fill="#ff9a56"/><circle cx="75" cy="95" r="3" fill="#ff9a56"/><path d="M 130 50 L 110 75" stroke="#fff" stroke-width="3" stroke-linecap="round"/><ellipse cx="100" cy="55" rx="6" ry="5" fill="rgba(255,255,255,0.7)"><animate attributeName="cy" values="55;35;55" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.8;0" dur="2s" repeatCount="indefinite"/></ellipse></svg>`
+    }
+  ];
+  
+  // 状态
+  let cart = [];
+  let currentCategory = 'all';
+  
+  // 渲染菜品
+  function renderDishes() {
+    const grid = document.getElementById('dishGrid');
+    const filtered = currentCategory === 'all' ? dishes : dishes.filter(d => d.category === currentCategory);
+    
+    grid.innerHTML = filtered.map(dish => `
+      <div class="dish-card reveal visible">
+        <div class="dish-image">
+          ${dish.svg}
+          ${dish.tag ? `<div class="dish-tag ${dish.tagType}">${dish.tag}</div>` : ''}
+          <button class="add-btn" onclick="addToCart(${dish.id}, event)" aria-label="加入购物车">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-lg mb-1" style="color: var(--text);">${dish.name}</h3>
+          <p class="text-sm mb-3" style="color: var(--text-soft);">${dish.desc}</p>
+          <div class="flex items-center justify-between">
+            <span class="price text-xl">¥${dish.price}</span>
+            <div class="flex items-center gap-1 text-xs" style="color: var(--accent);">
+              <i class="fas fa-star"></i>
+              <span class="font-semibold">4.${Math.floor(Math.random() * 4) + 5}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  // 分类切换
+  document.querySelectorAll('.category-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      currentCategory = pill.dataset.category;
+      renderDishes();
+    });
+  });
+  
+  // 添加到购物车
+  function addToCart(id, event) {
+    const dish = dishes.find(d => d.id === id);
+    if (!dish) return;
+    
+    const existing = cart.find(item => item.id === id);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({ ...dish, qty: 1 });
+    }
+    
+    updateCart();
+    showToast(`${dish.name} 加入购物篮`, 'success');
+    
+    // 飞出动画
+    if (event) {
+      const btn = event.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const cartBtn = document.querySelector('.cart-btn');
+      const cartRect = cartBtn.getBoundingClientRect();
+      
+      const fly = document.createElement('div');
+      fly.className = 'fly-dot';
+      fly.style.left = rect.left + rect.width / 2 - 12 + 'px';
+      fly.style.top = rect.top + rect.height / 2 - 12 + 'px';
+      document.body.appendChild(fly);
+      
+      requestAnimationFrame(() => {
+        fly.style.left = cartRect.left + cartRect.width / 2 - 12 + 'px';
+        fly.style.top = cartRect.top + cartRect.height / 2 - 12 + 'px';
+        fly.style.transform = 'scale(0.3)';
+        fly.style.opacity = '0.5';
+      });
+      
+      setTimeout(() => fly.remove(), 800);
+    }
+    
+    // 徽章弹跳
+    const badge = document.getElementById('cartBadge');
+    badge.classList.remove('bounce');
+    void badge.offsetWidth;
+    badge.classList.add('bounce');
+  }
+  
+  // 更新购物车
+  function updateCart() {
+    const cartItems = document.getElementById('cartItems');
+    const badge = document.getElementById('cartBadge');
+    const subtotal = document.getElementById('subtotal');
+    const total = document.getElementById('total');
+    
+    const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+    badge.textContent = totalQty;
+    badge.style.display = totalQty > 0 ? 'flex' : 'flex';
+    
+    if (cart.length === 0) {
+      cartItems.innerHTML = `
+        <div class="empty-cart">
+          <svg width="120" height="120" viewBox="0 0 120 120" class="mx-auto mb-4">
+            <ellipse cx="40" cy="30" rx="8" ry="22" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+            <ellipse cx="80" cy="30" rx="8" ry="22" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+            <ellipse cx="40" cy="32" rx="4" ry="15" fill="#ffb3c8"/>
+            <ellipse cx="80" cy="32" rx="4" ry="15" fill="#ffb3c8"/>
+            <circle cx="60" cy="65" r="30" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+            <ellipse cx="48" cy="70" rx="6" ry="4" fill="#ffb3c8" opacity="0.6"/>
+            <ellipse cx="72" cy="70" rx="6" ry="4" fill="#ffb3c8" opacity="0.6"/>
+            <path d="M 52 60 Q 54 56 56 60" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 64 60 Q 66 56 68 60" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M 56 75 Q 60 78 64 75" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+          <p class="font-medium">购物篮还是空的</p>
+          <p class="text-sm mt-1">快去挑些好吃的吧～</p>
+        </div>
+      `;
+    } else {
+      cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-img">${item.svg}</div>
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm truncate">${item.name}</h4>
+            <p class="price text-sm">¥${item.price}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+              <span class="font-semibold text-sm w-6 text-center">${item.qty}</span>
+              <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+            </div>
+          </div>
+          <button onclick="removeFromCart(${item.id})" class="text-sm w-7 h-7 rounded-full flex items-center justify-center transition" style="color: var(--text-light);" onmouseover="this.style.background='#ffe4ec';this.style.color='var(--primary)'" onmouseout="this.style.background='transparent';this.style.color='var(--text-light)'">
+            <i class="fas fa-trash-alt text-xs"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+    
+    const subtotalVal = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    subtotal.textContent = `¥${subtotalVal}`;
+    total.textContent = `¥${subtotalVal + 6}`;
+  }
+  
+  function changeQty(id, delta) {
+    const item = cart.find(i => i.id === id);
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) {
+      cart = cart.filter(i => i.id !== id);
+    }
+    updateCart();
+  }
+  
+  function removeFromCart(id) {
+    const dish = dishes.find(d => d.id === id);
+    cart = cart.filter(i => i.id !== id);
+    updateCart();
+    if (dish) showToast(`${dish.name} 已移出购物篮`, 'info');
+  }
+  
+  // 切换购物车
+  function toggleCart() {
+    const panel = document.getElementById('cartPanel');
+    const overlay = document.getElementById('cartOverlay');
+    panel.classList.toggle('open');
+    overlay.classList.toggle('open');
+  }
+  
+  // 结算
+  function checkout() {
+    if (cart.length === 0) {
+      showToast('购物篮空空的，先挑些好吃的吧～', 'info');
+      return;
+    }
+    
+    const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+    const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0) + 6;
+    
+    showToast(`下单成功！${totalQty} 件商品共 ¥${totalPrice}，兔兔开始做啦～`, 'success');
+    
+    // 撒花
+    confetti();
+    
+    cart = [];
+    updateCart();
+    setTimeout(() => toggleCart(), 1500);
+  }
+  
+  // 撒花动画
+  function confetti() {
+    const colors = ['#ff7ba9', '#ff9a56', '#7fdcb8', '#ffb3c8', '#ffc000'];
+    for (let i = 0; i < 50; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      c.style.animationDelay = Math.random() * 0.5 + 's';
+      c.style.animationDuration = (2 + Math.random() * 2) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  }
+  
+  // Toast
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    
+    const iconMap = {
+      success: { icon: 'fa-check-circle', color: 'var(--mint)' },
+      info: { icon: 'fa-info-circle', color: 'var(--accent)' },
+      error: { icon: 'fa-times-circle', color: 'var(--primary)' }
+    };
+    const { icon, color } = iconMap[type] || iconMap.success;
+    toast.style.borderLeftColor = color;
+    
+    toast.innerHTML = `
+      <i class="fas ${icon}" style="color: ${color}; font-size: 1.2rem;"></i>
+      <span class="font-medium">${message}</span>
+    `;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
+  
+  // 滚动到指定区域
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+  
+  // 兔兔挥手
+  function bunnyWave() {
+    showToast('兔兔向你挥手！耳朵都摇起来啦～', 'success');
+    const mascot = document.getElementById('bunnyMascot');
+    mascot.style.animation = 'none';
+    void mascot.offsetWidth;
+    mascot.style.animation = 'gentleShake 0.6s ease';
+    setTimeout(() => mascot.style.animation = '', 600);
+  }
+  
+  // 添加摇晃动画
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes gentleShake {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-3deg); }
+      75% { transform: rotate(3deg); }
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // 飘落的小元素
+  function createFallingItems() {
+    const container = document.getElementById('fallingItems');
+    const items = [
+      { svg: '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M 10 4 C 8 2, 4 2, 4 6 C 4 10, 10 14, 10 14 C 10 14, 16 10, 16 6 C 16 2, 12 2, 10 4 Z" fill="#ff7ba9"/></svg>', count: 8 },
+      { svg: '<svg width="20" height="20" viewBox="0 0 20 20"><path d="M 10 2 L 12 8 L 18 8 L 13 12 L 15 18 L 10 14 L 5 18 L 7 12 L 2 8 L 8 8 Z" fill="#ff9a56"/></svg>', count: 5 },
+      { svg: '<svg width="16" height="20" viewBox="0 0 16 20"><path d="M 8 4 L 8 16 M 6 4 L 6 8 M 10 4 L 10 8 M 4 6 L 4 10 M 12 6 L 12 10" stroke="#7fdcb8" stroke-width="2" stroke-linecap="round"/></svg>', count: 6 }
+    ];
+    
+    items.forEach(item => {
+      for (let i = 0; i < item.count; i++) {
+        const el = document.createElement('div');
+        el.className = 'falling-item';
+        el.innerHTML = item.svg;
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.animationDuration = (8 + Math.random() * 12) + 's';
+        el.style.animationDelay = Math.random() * 10 + 's';
+        el.style.opacity = 0.6;
+        container.appendChild(el);
+      }
+    });
+  }
+  
+  // 滚动揭示
+  function setupReveal() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  }
+  
+  // 点击兔子吉祥物
+  document.getElementById('bunnyMascot').addEventListener('click', bunnyWave);
+  
+  // 滚动时导航高亮
+  const sections = ['home', 'menu', 'features', 'kitchen'];
+  window.addEventListener('scroll', () => {
+    const scrollY = window.scrollY + 100;
+    let current = 'home';
+    sections.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.offsetTop <= scrollY) current = id;
+    });
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.toggle('active', link.textContent.trim() === ({home:'首页',menu:'菜单',features:'特色',kitchen:'小厨房'})[current]);
+    });
+  });
+  
+  // 初始化
+  renderDishes();
+  updateCart();
+  createFallingItems();
+  setupReveal();
+</script>
+
+</body>
+</html>

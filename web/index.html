@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bunny Bites · 兔兔小厨房</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Quicksand:wght@400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- 背景装饰 -->
+<div class="bg-decoration">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- 飘落小元素 -->
+<div class="falling-items" id="fallingItems"></div>
+
+<!-- 导航 -->
+<header class="fixed top-0 w-full z-50">
+  <nav class="flex items-center justify-between px-6 md:px-12 py-4">
+    <div class="flex items-center gap-2">
+      <svg width="44" height="44" viewBox="0 0 44 44">
+        <ellipse cx="16" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="16" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+        <ellipse cx="28" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="28" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+        <circle cx="22" cy="26" r="13" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="17" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+        <ellipse cx="27" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+        <circle cx="18" cy="24" r="1.5" fill="#5a3a44"/>
+        <circle cx="26" cy="24" r="1.5" fill="#5a3a44"/>
+        <path d="M 21 28 Q 22 29.5 23 28" stroke="#5a3a44" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <circle cx="22" cy="27.5" r="0.8" fill="#ff7ba9"/>
+      </svg>
+      <span class="display text-xl font-bold" style="color: var(--primary-dark);">Bunny Bites</span>
+    </div>
+    
+    <ul class="hidden md:flex items-center gap-8 font-medium">
+      <li><a class="nav-link active" onclick="scrollToSection('home')">首页</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('menu')">菜单</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('features')">特色</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('kitchen')">小厨房</a></li>
+    </ul>
+    
+    <div class="flex items-center gap-3">
+      <button onclick="toggleOrders()" class="w-10 h-10 rounded-full flex items-center justify-center transition" style="background: white; color: var(--text-soft); border: 2px solid var(--border);" title="我的订单">
+        <i class="fas fa-receipt"></i>
+      </button>
+      <button class="cart-btn" onclick="toggleCart()" aria-label="打开购物车">
+        <i class="fas fa-shopping-basket"></i>
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section id="home" class="hero relative z-10">
+  <div class="max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-8 items-center">
+    <div class="hero-content">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white shadow-sm mb-6">
+        <span class="w-2 h-2 rounded-full" style="background: var(--mint); box-shadow: 0 0 8px var(--mint);"></span>
+        <span class="text-sm font-medium">小厨房正在营业中</span>
+      </div>
+      <h1 class="hero-title mb-6">
+        嗨，我是<span class="accent">兔兔</span><br>
+        今天想吃点什么呢？
+      </h1>
+      <p class="text-lg mb-8" style="color: var(--text-soft); max-width: 480px;">
+        欢迎来到 Bunny Bites 小厨房！这里有用爱心烘焙的胡萝卜蛋糕、绵绵的草莓奶昔，还有兔兔最爱的隐藏菜单哦～
+      </p>
+      <div class="flex flex-wrap gap-4">
+        <button class="btn-primary" onclick="scrollToSection('menu')">
+          <i class="fas fa-utensils"></i>
+          看看菜单
+        </button>
+        <button class="btn-secondary" onclick="bunnyWave()">
+          <i class="fas fa-hand-sparkles"></i>
+          跟兔兔打招呼
+        </button>
+      </div>
+      
+      <div class="flex gap-8 mt-12">
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--primary);">120+</div>
+          <div class="text-sm" style="color: var(--text-soft);">美味菜品</div>
+        </div>
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--accent);">4.9</div>
+          <div class="text-sm" style="color: var(--text-soft);">兔兔评分</div>
+        </div>
+        <div>
+          <div class="display text-3xl font-bold" style="color: var(--mint);">15min</div>
+          <div class="text-sm" style="color: var(--text-soft);">最快出餐</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 兔子吉祥物 -->
+    <div class="bunny-mascot mx-auto" id="bunnyMascot">
+      <svg viewBox="0 0 500 500" class="w-full">
+        <!-- 阴影 -->
+        <ellipse cx="250" cy="470" rx="160" ry="18" fill="rgba(255, 123, 169, 0.25)"/>
+        
+        <!-- 蒸汽 -->
+        <g>
+          <ellipse cx="180" cy="240" rx="6" ry="12" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="240;200;240" dur="2.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="200" cy="230" rx="5" ry="10" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="230;190;230" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" begin="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="220" cy="240" rx="6" ry="12" fill="rgba(255,255,255,0.6)">
+            <animate attributeName="cy" values="240;200;240" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.8;0" dur="2.5s" begin="1s" repeatCount="indefinite"/>
+          </ellipse>
+        </g>
+        
+        <g class="bunny-body-wrap">
+          <!-- 身体 -->
+          <ellipse cx="250" cy="360" rx="130" ry="105" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 围裙 -->
+          <path d="M 195 295 Q 250 285 305 295 L 325 410 Q 250 430 175 410 Z" fill="#ff7ba9"/>
+          <path d="M 195 295 Q 250 285 305 295 L 305 295" stroke="#e85d8a" stroke-width="2" fill="none"/>
+          <rect x="220" y="350" width="60" height="35" rx="6" fill="#e85d8a" opacity="0.4"/>
+          <circle cx="210" cy="380" r="3" fill="#fff" opacity="0.6"/>
+          <circle cx="290" cy="380" r="3" fill="#fff" opacity="0.6"/>
+          <circle cx="250" cy="400" r="3" fill="#fff" opacity="0.6"/>
+          
+          <!-- 围裙带子 -->
+          <path d="M 220 295 Q 215 270 230 250" stroke="#ff7ba9" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M 280 295 Q 285 270 270 250" stroke="#ff7ba9" stroke-width="6" fill="none" stroke-linecap="round"/>
+          
+          <!-- 左手 -->
+          <ellipse cx="140" cy="340" rx="32" ry="38" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 右手 (拿汤勺) -->
+          <ellipse cx="370" cy="320" rx="32" ry="38" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          <g transform="translate(395, 290) rotate(30)">
+            <rect x="-3" y="0" width="6" height="50" rx="3" fill="#c4956b"/>
+            <ellipse cx="0" cy="-8" rx="14" ry="18" fill="#ff7ba9" stroke="#e85d8a" stroke-width="2"/>
+            <ellipse cx="0" cy="-12" rx="9" ry="11" fill="#ffb3c8"/>
+          </g>
+          
+          <!-- 头 -->
+          <circle cx="250" cy="200" r="105" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+          
+          <!-- 耳朵 -->
+          <g class="bunny-ear">
+            <ellipse cx="205" cy="80" rx="26" ry="85" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+            <ellipse cx="205" cy="95" rx="14" ry="65" fill="#ffb3c8"/>
+          </g>
+          <g class="bunny-ear bunny-ear-right">
+            <ellipse cx="295" cy="80" rx="26" ry="85" fill="#fff" stroke="#ffd1dc" stroke-width="3"/>
+            <ellipse cx="295" cy="95" rx="14" ry="65" fill="#ffb3c8"/>
+          </g>
+          
+          <!-- 腮红 -->
+          <ellipse cx="190" cy="225" rx="20" ry="13" fill="#ff9ec5" opacity="0.7" class="bunny-cheek"/>
+          <ellipse cx="310" cy="225" rx="20" ry="13" fill="#ff9ec5" opacity="0.7" class="bunny-cheek"/>
+          
+          <!-- 眼睛 -->
+          <g class="bunny-eye">
+            <ellipse cx="215" cy="195" rx="9" ry="12" fill="#5a3a44"/>
+            <ellipse cx="285" cy="195" rx="9" ry="12" fill="#5a3a44"/>
+            <circle cx="218" cy="191" r="3.5" fill="#fff"/>
+            <circle cx="288" cy="191" r="3.5" fill="#fff"/>
+            <circle cx="213" cy="200" r="1.5" fill="#fff"/>
+            <circle cx="283" cy="200" r="1.5" fill="#fff"/>
+          </g>
+          
+          <!-- 鼻子 -->
+          <path d="M 244 215 Q 250 222 256 215 Q 250 228 244 215 Z" fill="#ff7ba9"/>
+          
+          <!-- 嘴 -->
+          <path d="M 250 222 L 250 232" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M 250 232 Q 240 240 232 234" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M 250 232 Q 260 240 268 234" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
+          
+          <!-- 蝴蝶结 -->
+          <g transform="translate(165, 145)">
+            <path d="M 0 0 L -22 -16 L -22 16 Z" fill="#ff7ba9" stroke="#e85d8a" stroke-width="1.5"/>
+            <path d="M 0 0 L 22 -16 L 22 16 Z" fill="#ff7ba9" stroke="#e85d8a" stroke-width="1.5"/>
+            <circle cx="0" cy="0" r="6" fill="#e85d8a"/>
+            <circle cx="0" cy="0" r="3" fill="#ff9ec5"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 厨房条纹 -->
+<div class="kitchen-stripe"></div>
+
+<!-- 菜单 -->
+<section id="menu" class="py-20 px-6 relative z-10">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: var(--bg-soft); color: var(--primary);">
+        今日菜单
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3" style="color: var(--text);">
+        兔兔的拿手好菜
+      </h2>
+      <p style="color: var(--text-soft);">每一道都是用心准备，记得要吃光光哦～</p>
+    </div>
+    
+    <div class="flex gap-3 overflow-x-auto pb-4 mb-10 justify-start md:justify-center reveal" id="categories">
+      <button class="category-pill active" data-category="all">全部</button>
+      <button class="category-pill" data-category="main">主食</button>
+      <button class="category-pill" data-category="dessert">甜品</button>
+      <button class="category-pill" data-category="drink">饮品</button>
+      <button class="category-pill" data-category="salad">沙拉</button>
+      <button class="category-pill" data-category="limited">限定</button>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="dishGrid"></div>
+  </div>
+</section>
+
+<!-- 特色板块 -->
+<section id="features" class="py-20 px-6 relative z-10" style="background: linear-gradient(180deg, transparent, var(--bg-soft) 30%, var(--bg-soft) 70%, transparent);">
+  <div class="max-w-7xl mx-auto">
+    <div class="text-center mb-12 reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: white; color: var(--accent);">
+        为什么选我们
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3" style="color: var(--text);">
+        小厨房的满满心意
+      </h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: var(--bg-soft); color: var(--primary);">
+          <i class="fas fa-carrot"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">现采现做</h3>
+        <p style="color: var(--text-soft);">每天清晨从兔兔的菜园里新鲜采摘，绝不使用隔夜食材，每一口都是大自然的味道。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: #fff4e6; color: var(--accent);">
+          <i class="fas fa-fire"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">慢火细炖</h3>
+        <p style="color: var(--text-soft);">每一道菜都用小火慢慢熬煮，把所有好味道都锁在里面，让舌头跳起舞来。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon" style="background: #e6f9f1; color: var(--mint);">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <h3 class="text-xl font-bold mb-2">健康配方</h3>
+        <p style="color: var(--text-soft);">减糖减油配方，让小兔子们吃得开心又没有负担，连胡萝卜都变得更甜了。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 小厨房介绍 -->
+<section id="kitchen" class="py-20 px-6 relative z-10">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    <div class="reveal">
+      <div class="inline-block px-4 py-1.5 rounded-full text-sm font-semibold mb-4" style="background: var(--bg-soft); color: var(--primary);">
+        关于小厨房
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-6" style="color: var(--text);">
+        一个充满胡萝卜香气<br>的小小梦想
+      </h2>
+      <p class="mb-6" style="color: var(--text-soft);">
+        Bunny Bites 起源于一只名叫 Mochi 的小兔子的梦想。她最爱在自家小厨房里捣鼓各种料理，从最初的胡萝卜松饼到现在的全套菜单，每一道菜都藏着她的心意。
+      </p>
+      <p class="mb-8" style="color: var(--text-soft);">
+        现在的小厨房不仅有 Mochi，还有她的好朋友们一起帮忙。我们希望每一位光临的客人，都能在这里找到一份属于自己的温暖与甜蜜。
+      </p>
+      
+      <div class="space-y-5">
+        <div class="flex gap-4 items-start">
+          <div class="step-number">1</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">挑选喜欢的菜品</h4>
+            <p class="text-sm" style="color: var(--text-soft);">浏览菜单，把心动的菜品加入购物篮</p>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="step-number">2</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">兔兔开始制作</h4>
+            <p class="text-sm" style="color: var(--text-soft);">Mochi 接到订单后立刻开工，慢工出细活</p>
+          </div>
+        </div>
+        <div class="flex gap-4 items-start">
+          <div class="step-number">3</div>
+          <div>
+            <h4 class="font-bold text-lg mb-1">配送到你家</h4>
+            <p class="text-sm" style="color: var(--text-soft);">热腾腾的美食由小兔快递员送达</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="relative reveal">
+      <svg viewBox="0 0 500 500" class="w-full">
+        <rect width="500" height="500" rx="32" fill="#fff8f0"/>
+        
+        <!-- 墙砖图案 -->
+        <pattern id="tiles" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+          <rect width="60" height="60" fill="#ffe4ec"/>
+          <rect width="58" height="58" x="1" y="1" fill="#fff0f5" rx="4"/>
+        </pattern>
+        <rect width="500" height="280" fill="url(#tiles)"/>
+        
+        <!-- 灶台 -->
+        <rect x="40" y="280" width="420" height="180" rx="12" fill="#ffd1dc"/>
+        <rect x="40" y="280" width="420" height="20" fill="#ff7ba9"/>
+        
+        <!-- 锅1 -->
+        <circle cx="160" cy="340" r="55" fill="#5a3a44"/>
+        <circle cx="160" cy="340" r="48" fill="#8a6770"/>
+        <ellipse cx="160" cy="335" rx="40" ry="20" fill="#ff9a56" opacity="0.8"/>
+        <circle cx="145" cy="328" r="6" fill="#ff7ba9"/>
+        <circle cx="170" cy="332" r="5" fill="#7fdcb8"/>
+        <circle cx="180" cy="345" r="4" fill="#ff9a56"/>
+        <ellipse cx="150" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="170" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </ellipse>
+        
+        <!-- 锅2 -->
+        <circle cx="340" cy="340" r="55" fill="#5a3a44"/>
+        <circle cx="340" cy="340" r="48" fill="#8a6770"/>
+        <ellipse cx="340" cy="335" rx="40" ry="20" fill="#fff8f0"/>
+        <circle cx="325" cy="330" r="5" fill="#ff7ba9"/>
+        <circle cx="345" cy="335" r="4" fill="#ff9a56"/>
+        <circle cx="355" cy="328" r="6" fill="#7fdcb8"/>
+        <ellipse cx="330" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2.2s" begin="0.3s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="350" cy="290" rx="6" ry="12" fill="rgba(255,255,255,0.7)">
+          <animate attributeName="cy" values="290;250;290" dur="2.2s" begin="0.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;0.8;0" dur="2.2s" begin="0.8s" repeatCount="indefinite"/>
+        </ellipse>
+        
+        <!-- 挂着的厨具 -->
+        <rect x="80" y="20" width="6" height="60" fill="#c4956b"/>
+        <circle cx="83" cy="85" r="15" fill="#ff7ba9" stroke="#e85d8a" stroke-width="2"/>
+        <rect x="130" y="20" width="6" height="55" fill="#c4956b"/>
+        <ellipse cx="133" cy="80" rx="20" ry="12" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+        <rect x="380" y="20" width="6" height="65" fill="#c4956b"/>
+        <rect x="365" y="80" width="36" height="22" rx="4" fill="#ff9a56" stroke="#e8821a" stroke-width="2"/>
+        
+        <!-- 装饰小兔头像 -->
+        <g transform="translate(250, 130)">
+          <ellipse cx="-22" cy="-30" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="22" cy="-30" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="-22" cy="-28" rx="3" ry="13" fill="#ffb3c8"/>
+          <ellipse cx="22" cy="-28" rx="3" ry="13" fill="#ffb3c8"/>
+          <circle cx="0" cy="0" r="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+          <ellipse cx="-10" cy="3" rx="5" ry="3" fill="#ff9ec5" opacity="0.7"/>
+          <ellipse cx="10" cy="3" rx="5" ry="3" fill="#ff9ec5" opacity="0.7"/>
+          <circle cx="-7" cy="-3" r="2.5" fill="#5a3a44"/>
+          <circle cx="7" cy="-3" r="2.5" fill="#5a3a44"/>
+          <path d="M -2 4 Q 0 7 2 4" stroke="#5a3a44" stroke-width="1" fill="none"/>
+        </g>
+        
+        <!-- 爱心 -->
+        <path d="M 100 180 C 95 175, 85 175, 85 185 C 85 195, 100 205, 100 205 C 100 205, 115 195, 115 185 C 115 175, 105 175, 100 180 Z" fill="#ff7ba9" opacity="0.6">
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 400 200 C 395 195, 385 195, 385 205 C 385 215, 400 225, 400 225 C 400 225, 415 215, 415 205 C 415 195, 405 195, 400 200 Z" fill="#ff9a56" opacity="0.6">
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+        </path>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- 底部 -->
+<footer class="relative z-10 pt-16 pb-8 px-6" style="background: linear-gradient(180deg, transparent, var(--bg-soft));">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-8 mb-10">
+      <div>
+        <div class="flex items-center gap-2 mb-4">
+          <svg width="36" height="36" viewBox="0 0 44 44">
+            <ellipse cx="16" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="28" cy="10" rx="4" ry="9" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="16" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+            <ellipse cx="28" cy="12" rx="2" ry="6" fill="#ffb3c8"/>
+            <circle cx="22" cy="26" r="13" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+            <ellipse cx="17" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+            <ellipse cx="27" cy="28" rx="2.5" ry="1.8" fill="#ffb3c8" opacity="0.8"/>
+            <circle cx="18" cy="24" r="1.5" fill="#5a3a44"/>
+            <circle cx="26" cy="24" r="1.5" fill="#5a3a44"/>
+          </svg>
+          <span class="display text-lg font-bold" style="color: var(--primary-dark);">Bunny Bites</span>
+        </div>
+        <p class="text-sm" style="color: var(--text-soft);">用爱心烹饪每一道菜，让每一餐都成为小确幸。</p>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">菜单</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-soft);">
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">主食</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">甜品</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">饮品</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('menu')">限定</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">关于</h4>
+        <ul class="space-y-2 text-sm" style="color: var(--text-soft);">
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('kitchen')">小厨房故事</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer" onclick="scrollToSection('features')">我们的特色</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer">加入我们</a></li>
+          <li><a class="hover:text-pink-500 cursor-pointer">联系兔兔</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-bold mb-3" style="color: var(--text);">关注我们</h4>
+        <div class="flex gap-3">
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);"><i class="fab fa-weibo"></i></a>
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);"><i class="fab fa-weixin"></i></a>
+          <a class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition" style="background: white; color: var(--primary);"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="pt-6 border-t text-center text-sm" style="border-color: var(--border); color: var(--text-light);">
+      <p>© 2024 Bunny Bites · 兔兔小厨房 · 用 Moonbit 与爱打造</p>
+      <p class="mt-1">基于 Moonbit 语言构建 · 后端核心引擎由 Moonbit 驱动</p>
+    </div>
+  </div>
+</footer>
+
+<!-- 购物车覆盖层 -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+<!-- 购物车面板 -->
+<aside class="cart-panel" id="cartPanel">
+  <div class="p-6 border-b" style="border-color: var(--border);">
+    <div class="flex items-center justify-between">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-shopping-basket" style="color: var(--primary);"></i>
+        购物篮
+      </h3>
+      <button onclick="toggleCart()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto p-6" id="cartItems"></div>
+  
+  <div class="p-6 border-t" style="border-color: var(--border); background: white;">
+    <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
+      <span>小计</span>
+      <span id="subtotal">¥0</span>
+    </div>
+    <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
+      <span>配送费</span>
+      <span>¥6</span>
+    </div>
+    <div class="flex justify-between mb-4 text-lg font-bold">
+      <span>总计</span>
+      <span class="price" id="total">¥6</span>
+    </div>
+    <button class="btn-primary w-full justify-center" onclick="checkout()">
+      <i class="fas fa-paper-plane"></i>
+      下单啦
+    </button>
+  </div>
+</aside>
+
+<!-- 订单覆盖层 -->
+<div class="cart-overlay" id="orderOverlay" onclick="toggleOrders()"></div>
+
+<!-- 订单面板 -->
+<aside class="order-panel" id="orderPanel">
+  <div class="p-6 border-b" style="border-color: var(--border);">
+    <div class="flex items-center justify-between">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-receipt" style="color: var(--primary);"></i>
+        我的订单
+      </h3>
+      <button onclick="toggleOrders()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="flex-1 overflow-y-auto p-6" id="orderList"></div>
+</aside>
+
+<!-- Toast 容器 -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
