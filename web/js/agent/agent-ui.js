@@ -16,7 +16,7 @@ function toggleAgent() {
       chatAgent.addWelcomeMessage();
     }
     setTimeout(() => {
-      scrollAgentToBottom();
+      scrollAgentToBottom(true);
       document.getElementById('agentInput').focus();
     }, 100);
   }
@@ -25,21 +25,34 @@ function toggleAgent() {
 function agentSendMessage() {
   const input = document.getElementById('agentInput');
   const text = input.value.trim();
-  if (!text) return;
+  if (!text || text.length > 500) {
+    if (text.length > 500) showToast('消息不能超过500字哦', 'error');
+    return;
+  }
   
   input.value = '';
+  input.style.height = 'auto';
   document.getElementById('agentSendBtn').disabled = true;
   
   chatAgent.handleMessage(text).then(() => {
     document.getElementById('agentSendBtn').disabled = false;
-    scrollAgentToBottom();
-    renderAgentMessages();
   });
   
   // 立即显示用户消息
   renderAgentMessages();
-  scrollAgentToBottom();
+  scrollAgentToBottom(true);
 }
+
+// 输入框自适应高度
+document.addEventListener('DOMContentLoaded', () => {
+  const input = document.getElementById('agentInput');
+  if (input) {
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+    });
+  }
+});
 
 function agentSendSuggestion(text) {
   document.getElementById('agentInput').value = text;
@@ -51,6 +64,20 @@ function agentHandleKey(event) {
     event.preventDefault();
     agentSendMessage();
   }
+  if (event.key === 'Escape' && agentOpen) {
+    toggleAgent();
+  }
+}
+
+function scrollAgentToBottom(smooth) {
+  const container = document.getElementById('agentMessages');
+  if (!container) return;
+  setTimeout(() => {
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: smooth ? 'smooth' : 'auto'
+    });
+  }, 50);
 }
 
 function renderAgentMessages() {
