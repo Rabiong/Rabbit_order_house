@@ -104,7 +104,7 @@ class AgentResponder {
       };
     }
 
-    this.agent.executeAdd(dish.id);
+    this.agent.executeAdd(dish.id, quantity);
 
     const qtyWord = quantity > 1 ? `${quantity}份` : '';
     const addMsgs = [

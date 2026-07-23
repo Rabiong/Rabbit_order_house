@@ -121,9 +121,12 @@ class ChatAgent {
 
   // ===== 与购物车系统的集成 =====
 
-  executeAdd(dishId) {
+  executeAdd(dishId, quantity) {
+    const qty = quantity || 1;
     if (typeof addToCart === 'function') {
-      addToCart(dishId, null);
+      for (let i = 0; i < qty; i++) {
+        addToCart(dishId, null);
+      }
     }
   }
 
@@ -131,7 +134,9 @@ class ChatAgent {
     if (typeof removeFromCart === 'function') {
       const item = cart.find(i => i.id === dishId);
       if (item) {
-        removeFromCart(dishId);
+        for (let i = 0; i < item.qty; i++) {
+          removeFromCart(dishId);
+        }
         return true;
       }
       return false;
