@@ -200,6 +200,27 @@ nav {
 [data-theme="dark"] .theme-btn { background: #2a2a3e; border-color: #5a3a44; color: #ffc89a; }
 [data-theme="dark"] .theme-btn:hover { background: var(--primary); color: white; }
 
+/* 语言切换按钮 */
+.lang-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--primary-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Fredoka', sans-serif;
+  transition: all 0.3s;
+}
+.lang-btn:hover { background: var(--primary-light); color: white; transform: scale(1.05); }
+[data-theme="dark"] .lang-btn { background: #2a2a3e; border-color: #5a3a44; color: #ffc89a; }
+[data-theme="dark"] .lang-btn:hover { background: var(--primary); color: white; }
+
 .cart-badge {
   position: absolute;
   top: -6px;

@@ -129,7 +129,265 @@ function initTheme() {
   });
 }
 
-// ======= 搜索功能 =======
+// ======= 多语言（i18n） =======
+const TRANSLATIONS = {
+  zh: {
+    'nav.home': '首页',
+    'nav.menu': '菜单',
+    'nav.features': '特色',
+    'nav.kitchen': '小厨房',
+    'search.placeholder': '搜索菜品名称或描述...',
+    'search.clear': '清除搜索',
+    'search.empty': '没有找到匹配的菜品',
+    'fav.empty': '还没有收藏菜品哦～',
+    'fav.category': '收藏',
+    'cart.empty': '购物篮还是空的',
+    'cart.empty_hint': '快去挑些好吃的吧～',
+    'cart.subtotal': '小计',
+    'cart.delivery': '配送费',
+    'cart.total': '合计',
+    'cart.checkout': '去结算',
+    'cart.recommend': '你可能还喜欢',
+    'order.title': '我的订单',
+    'order.all': '全部',
+    'order.pending': '待处理',
+    'order.preparing': '准备中',
+    'order.completed': '已完成',
+    'order.cancelled': '已取消',
+    'order.empty': '还没有订单记录',
+    'order.empty_hint': '快去下单吧～',
+    'order.cancel': '取消订单',
+    'order.no_match': '没有符合条件的订单',
+    'status.pending': '等待处理',
+    'status.preparing': '准备中',
+    'status.completed': '已完成',
+    'status.cancelled': '已取消',
+    'auth.login': '登录',
+    'auth.register': '注册',
+    'auth.logout': '退出登录',
+    'auth.username': '用户名',
+    'auth.password': '密码',
+    'auth.nickname': '昵称',
+    'profile.title': '个人信息',
+    'profile.save': '保存信息',
+    'profile.phone': '手机号',
+    'profile.address': '收货地址',
+    'profile.nickname': '昵称',
+    'profile.addresses': '收货地址',
+    'profile.add_address': '添加地址',
+    'profile.no_address': '还没有添加收货地址',
+    'address.form_title': '添加地址',
+    'address.label': '标签',
+    'address.receiver': '收货人',
+    'address.phone': '联系电话',
+    'address.detail': '详细地址',
+    'address.default': '设为默认地址',
+    'address.save': '保存地址',
+    'address.set_default': '设为默认',
+    'admin.title': '后台管理',
+    'admin.total_dishes': '菜品总数',
+    'admin.total_orders': '订单总数',
+    'admin.total_revenue': '总收入',
+    'admin.order_manage': '订单管理',
+    'admin.top_dishes': '热门菜品',
+    'admin.no_orders': '暂无订单',
+    'admin.no_data': '暂无订单数据',
+    'detail.add_cart': '加入购物车',
+    'detail.favorite': '收藏',
+    'detail.favorited': '已收藏',
+    'detail.reviews': '顾客评价',
+    'detail.write_review': '写评价',
+    'detail.review_placeholder': '分享你的品尝体验...',
+    'detail.submit_review': '提交评价',
+    'detail.login_review': '登录后可以写评价哦～',
+    'detail.no_reviews': '暂无评价，快来写第一条吧～',
+    'review.submitted': '评价已提交，谢谢分享！',
+    'toast.login_first': '请先登录',
+    'toast.added': '加入购物篮',
+    'toast.removed': '已移出购物篮',
+    'toast.order_success': '下单成功！兔兔开始做啦～',
+    'toast.welcome': '欢迎回来',
+    'toast.welcome_new': '欢迎加入兔兔小厨房',
+    'toast.logged_out': '已退出登录',
+    'toast.saved': '个人信息已保存',
+    'toast.address_added': '地址已添加',
+    'toast.address_updated': '地址已更新',
+    'toast.address_deleted': '地址已删除',
+    'toast.default_set': '已设为默认地址',
+    'theme.light': '🌙',
+    'theme.dark': '☀️',
+    'lang.switch': '语言',
+    'home.tagline': '属于兔兔的小小厨房',
+    'home.subtitle': '每一道菜都用爱和胡萝卜做成',
+    'home.cta': '看看菜单',
+    'features.title': '为什么选择我们',
+    'features.fresh.title': '新鲜食材',
+    'features.fresh.desc': '每天清晨从森林市场采购最新鲜的蔬菜水果，每一口都是大自然的味道。',
+    'features.slow.title': '慢火细炖',
+    'features.slow.desc': '每一道菜都用小火慢慢熬煮，把所有好味道都锁在里面，让舌头跳起舞来。',
+    'features.healthy.title': '健康配方',
+    'features.healthy.desc': '减糖减油配方，让小兔子们吃得开心又没有负担，连胡萝卜都变得更甜了。',
+    'kitchen.title': '一个充满胡萝卜香气的小小梦想',
+    'kitchen.desc1': 'Bunny Bites 起源于一只名叫 Mochi 的小兔子的梦想。她最爱在自家小厨房里捣鼓各种料理，从最初的胡萝卜松饼到现在的全套菜单，每一道菜都藏着她的心意。',
+    'kitchen.desc2': '我们相信，好的料理不需要花哨的技巧，只要有一颗愿意为他人付出的心，和一点点胡萝卜的魔法，就够了。',
+    'kitchen.cta': '开始点餐',
+    'cart.login_hint': '请先登录再下单哦～',
+    'cart.empty_hint2': '购物篮空空的，先挑些好吃的吧～',
+  },
+  en: {
+    'nav.home': 'Home',
+    'nav.menu': 'Menu',
+    'nav.features': 'Features',
+    'nav.kitchen': 'Kitchen',
+    'search.placeholder': 'Search dishes...',
+    'search.clear': 'Clear',
+    'search.empty': 'No dishes found',
+    'fav.empty': 'No favorites yet~',
+    'fav.category': 'Favorites',
+    'cart.empty': 'Cart is empty',
+    'cart.empty_hint': 'Let\'s pick some treats!',
+    'cart.subtotal': 'Subtotal',
+    'cart.delivery': 'Delivery',
+    'cart.total': 'Total',
+    'cart.checkout': 'Checkout',
+    'cart.recommend': 'You May Also Like',
+    'order.title': 'My Orders',
+    'order.all': 'All',
+    'order.pending': 'Pending',
+    'order.preparing': 'Preparing',
+    'order.completed': 'Completed',
+    'order.cancelled': 'Cancelled',
+    'order.empty': 'No orders yet',
+    'order.empty_hint': 'Go order something!',
+    'order.cancel': 'Cancel',
+    'order.no_match': 'No matching orders',
+    'status.pending': 'Pending',
+    'status.preparing': 'Preparing',
+    'status.completed': 'Completed',
+    'status.cancelled': 'Cancelled',
+    'auth.login': 'Login',
+    'auth.register': 'Register',
+    'auth.logout': 'Logout',
+    'auth.username': 'Username',
+    'auth.password': 'Password',
+    'auth.nickname': 'Nickname',
+    'profile.title': 'Profile',
+    'profile.save': 'Save',
+    'profile.phone': 'Phone',
+    'profile.address': 'Address',
+    'profile.nickname': 'Nickname',
+    'profile.addresses': 'Addresses',
+    'profile.add_address': 'Add Address',
+    'profile.no_address': 'No addresses yet',
+    'address.form_title': 'Add Address',
+    'address.label': 'Label',
+    'address.receiver': 'Receiver',
+    'address.phone': 'Phone',
+    'address.detail': 'Detail',
+    'address.default': 'Set as default',
+    'address.save': 'Save Address',
+    'address.set_default': 'Set Default',
+    'admin.title': 'Dashboard',
+    'admin.total_dishes': 'Total Dishes',
+    'admin.total_orders': 'Total Orders',
+    'admin.total_revenue': 'Revenue',
+    'admin.order_manage': 'Orders',
+    'admin.top_dishes': 'Top Dishes',
+    'admin.no_orders': 'No orders',
+    'admin.no_data': 'No order data',
+    'detail.add_cart': 'Add to Cart',
+    'detail.favorite': 'Favorite',
+    'detail.favorited': 'Favorited',
+    'detail.reviews': 'Reviews',
+    'detail.write_review': 'Write Review',
+    'detail.review_placeholder': 'Share your experience...',
+    'detail.submit_review': 'Submit',
+    'detail.login_review': 'Login to write a review~',
+    'detail.no_reviews': 'No reviews yet, be the first!',
+    'review.submitted': 'Review submitted, thanks!',
+    'toast.login_first': 'Please login first',
+    'toast.added': 'Added to cart',
+    'toast.removed': 'Removed from cart',
+    'toast.order_success': 'Order placed! Bunny is cooking~',
+    'toast.welcome': 'Welcome back',
+    'toast.welcome_new': 'Welcome to Bunny Bites',
+    'toast.logged_out': 'Logged out',
+    'toast.saved': 'Profile saved',
+    'toast.address_added': 'Address added',
+    'toast.address_updated': 'Address updated',
+    'toast.address_deleted': 'Address deleted',
+    'toast.default_set': 'Set as default',
+    'theme.light': '🌙',
+    'theme.dark': '☀️',
+    'lang.switch': '中',
+    'home.tagline': 'A Little Bunny Kitchen',
+    'home.subtitle': 'Every dish is made with love and carrots',
+    'home.cta': 'View Menu',
+    'features.title': 'Why Choose Us',
+    'features.fresh.title': 'Fresh Ingredients',
+    'features.fresh.desc': 'Fresh veggies from the forest market every morning. Every bite tastes like nature.',
+    'features.slow.title': 'Slow Cooked',
+    'features.slow.desc': 'Every dish is simmered slowly to lock in all the flavors, making your taste buds dance.',
+    'features.healthy.title': 'Healthy Recipe',
+    'features.healthy.desc': 'Less sugar, less oil. Bunnies eat happy without the guilt, and even carrots taste sweeter.',
+    'kitchen.title': 'A Little Dream Filled with Carrot Aroma',
+    'kitchen.desc1': 'Bunny Bites started from the dream of a little bunny named Mochi. She loves cooking in her tiny kitchen, from the first carrot muffin to the full menu today, every dish carries her heart.',
+    'kitchen.desc2': 'We believe good food doesn\'t need fancy techniques. Just a heart willing to give, and a little bit of carrot magic.',
+    'kitchen.cta': 'Start Ordering',
+    'cart.login_hint': 'Please login to order~',
+    'cart.empty_hint2': 'Cart is empty, pick some treats!',
+  }
+};
+
+let currentLang = localStorage.getItem('bunnyLang') || 'zh';
+
+function t(key) {
+  return TRANSLATIONS[currentLang][key] || TRANSLATIONS['zh'][key] || key;
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('bunnyLang', lang);
+  applyTranslations();
+  // Update lang button
+  const langBtn = document.getElementById('langToggle');
+  if (langBtn) {
+    langBtn.innerHTML = lang === 'zh' ? t('lang.switch') : 'EN';
+    langBtn.title = lang === 'zh' ? 'English' : '中文';
+  }
+  // Re-render dynamic content
+  renderDishes();
+  if (document.getElementById('orderPanel').classList.contains('open')) renderOrders();
+  if (document.getElementById('cartPanel').classList.contains('open')) updateCart();
+  if (document.getElementById('adminPanel').classList.contains('open')) renderAdminDashboard();
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+  // Translate all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    el.textContent = t(key);
+  });
+  // Translate placeholders
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.dataset.i18nPlaceholder;
+    el.placeholder = t(key);
+  });
+  // Update cart hint text
+  const delimiter = document.querySelector('.cart-page-title');
+  if (delimiter) {
+    // Title is handled by data-i18n
+  }
+}
+
+function toggleLanguage() {
+  setLanguage(currentLang === 'zh' ? 'en' : 'zh');
+}
 function handleSearch() {
   const input = document.getElementById('searchInput');
   searchQuery = input.value.trim().toLowerCase();
@@ -179,9 +437,9 @@ function renderDishes() {
           <path d="M 46 46 Q 50 50 54 46" stroke="#5a3a44" stroke-width="1.5" fill="none"/>
         </svg>
         <p class="font-medium" style="color: var(--text-soft);">
-          ${searchQuery ? '没有找到匹配的菜品' : currentCategory === 'favorites' ? '还没有收藏菜品哦～' : '暂无菜品'}
+          ${searchQuery ? t('search.empty') : currentCategory === 'favorites' ? t('fav.empty') : t('cart.empty_hint2')}
         </p>
-        ${searchQuery ? '<button class="text-sm mt-2" style="color:var(--primary);cursor:pointer;" onclick="clearSearch()">清除搜索</button>' : ''}
+        ${searchQuery ? `<button class="text-sm mt-2" style="color:var(--primary);cursor:pointer;" onclick="clearSearch()">${t('search.clear')}</button>` : ''}
       </div>
     `;
     return;
@@ -475,8 +733,8 @@ function updateCart() {
           <path d="M 64 60 Q 66 56 68 60" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
           <path d="M 56 75 Q 60 78 64 75" stroke="#5a3a44" stroke-width="2" fill="none" stroke-linecap="round"/>
         </svg>
-        <p class="font-medium">购物篮还是空的</p>
-        <p class="text-sm mt-1">快去挑些好吃的吧～</p>
+        <p class="font-medium">${t('cart.empty')}</p>
+        <p class="text-sm mt-1">${t('cart.empty_hint')}</p>
       </div>
     `;
     document.getElementById('cartRecommendations').style.display = 'none';
@@ -575,7 +833,7 @@ function renderCartRecommendations() {
     <div class="cart-rec-section">
       <div class="cart-rec-header">
         <i class="fas fa-lightbulb" style="color:var(--accent);"></i>
-        <span class="font-bold text-sm">你可能还喜欢</span>
+        <span class="font-bold text-sm">${t('cart.recommend')}</span>
       </div>
       <div class="cart-rec-grid">
         ${recs.map(dish => `
@@ -896,37 +1154,37 @@ function renderAdminDashboard() {
       <div class="admin-stat-card" style="background:linear-gradient(135deg,#ff7ba9,#ff9ec5);">
         <div class="admin-stat-icon"><i class="fas fa-utensils"></i></div>
         <div class="admin-stat-num">${totalDishes}</div>
-        <div class="admin-stat-label">菜品总数</div>
+        <div class="admin-stat-label">${t('admin.total_dishes')}</div>
       </div>
       <div class="admin-stat-card" style="background:linear-gradient(135deg,#ff9a56,#ffc89a);">
         <div class="admin-stat-icon"><i class="fas fa-receipt"></i></div>
         <div class="admin-stat-num">${totalOrders}</div>
-        <div class="admin-stat-label">订单总数</div>
+        <div class="admin-stat-label">${t('admin.total_orders')}</div>
       </div>
       <div class="admin-stat-card" style="background:linear-gradient(135deg,#7fdcb8,#b5e8d4);">
         <div class="admin-stat-icon"><i class="fas fa-dollar-sign"></i></div>
         <div class="admin-stat-num">¥${totalRevenue}</div>
-        <div class="admin-stat-label">总收入</div>
+        <div class="admin-stat-label">${t('admin.total_revenue')}</div>
       </div>
       <div class="admin-stat-card" style="background:linear-gradient(135deg,#c47be8,#dab0f0);">
         <div class="admin-stat-icon"><i class="fas fa-chart-bar"></i></div>
         <div class="admin-stat-num">${pendingCount}/${preparingCount}/${completedCount}</div>
-        <div class="admin-stat-label">待处理/进行中/已完成</div>
+        <div class="admin-stat-label">${t('status.pending')}/${t('status.preparing')}/${t('status.completed')}</div>
       </div>
     </div>
     ${topDishes.length > 0 ? `
     <div class="admin-section">
-      <h4 class="font-bold mb-3">热门菜品 Top ${topDishes.length}</h4>
+      <h4 class="font-bold mb-3">${t('admin.top_dishes')} Top ${topDishes.length}</h4>
       <div class="admin-top-dishes">
         ${topDishes.map((d, i) => `
           <div class="admin-top-item">
             <span class="admin-top-rank">${i + 1}</span>
             <span class="flex-1">${d.name}</span>
-            <span class="font-bold" style="color:var(--primary);">${d.count} 份</span>
+            <span class="font-bold" style="color:var(--primary);">${d.count}</span>
           </div>
         `).join('')}
       </div>
-    </div>` : '<p class="text-sm" style="color:var(--text-light);text-align:center;padding:2rem;">暂无订单数据</p>'}
+    </div>` : `<p class="text-sm" style="color:var(--text-light);text-align:center;padding:2rem;">${t('admin.no_data')}</p>`}
   `;
   
   document.getElementById('adminDashboard').innerHTML = statsHTML;
@@ -940,7 +1198,7 @@ function renderAdminOrders() {
     return;
   }
   container.innerHTML = orders.map(order => {
-    const statusMap = { pending: '待处理', preparing: '准备中', completed: '已完成', cancelled: '已取消' };
+    const statusMap = { pending: t('status.pending'), preparing: t('status.preparing'), completed: t('status.completed'), cancelled: t('status.cancelled') };
     const itemSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
     return `
       <div class="admin-order-item">
@@ -1006,8 +1264,8 @@ function renderOrders() {
           <ellipse cx="40" cy="20" rx="4" ry="12" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
           <ellipse cx="60" cy="20" rx="4" ry="12" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
         </svg>
-        <p class="font-medium">还没有订单记录</p>
-        <p class="text-sm mt-1">快去下单吧～</p>
+        <p class="font-medium">${t('order.empty')}</p>
+        <p class="text-sm mt-1">${t('order.empty_hint')}</p>
       </div>
     `;
     return;
@@ -1016,12 +1274,12 @@ function renderOrders() {
   const filtered = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
   
   if (filtered.length === 0) {
-    container.innerHTML = `<div class="empty-state"><p class="font-medium">没有符合条件的订单</p></div>`;
+    container.innerHTML = `<div class="empty-state"><p class="font-medium">${t('order.no_match')}</p></div>`;
     return;
   }
   
   container.innerHTML = filtered.map(order => {
-    const statusMap = { pending: '等待处理', preparing: '准备中', completed: '已完成', cancelled: '已取消' };
+    const statusMap = { pending: t('status.pending'), preparing: t('status.preparing'), completed: t('status.completed'), cancelled: t('status.cancelled') };
     const iconMap = { pending: 'fa-clock', preparing: 'fa-fire', completed: 'fa-check-circle', cancelled: 'fa-times-circle' };
     const colorMap = { pending: '#ff9a56', preparing: '#ff7ba9', completed: '#7fdcb8', cancelled: '#ccc' };
     const itemSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
@@ -1043,7 +1301,7 @@ function renderOrders() {
         <div class="flex items-center justify-between mt-3 pt-3" style="border-top: 1px solid var(--border);">
           <span class="price font-bold">¥${order.total}</span>
           <div class="flex items-center gap-2">
-            ${order.status === 'pending' ? `<button class="text-xs px-3 py-1.5 rounded-full font-semibold" style="background:#ffe4ec;color:#e74c3c;border:none;cursor:pointer;" onclick="cancelOrder(${order.id})">取消订单</button>` : ''}
+            ${order.status === 'pending' ? `<button class="text-xs px-3 py-1.5 rounded-full font-semibold" style="background:#ffe4ec;color:#e74c3c;border:none;cursor:pointer;" onclick="cancelOrder(${order.id})">${t('order.cancel')}</button>` : ''}
             <span class="text-xs" style="color: var(--text-light);">${order.createdAt}</span>
           </div>
         </div>
@@ -1228,6 +1486,7 @@ function initScrollSpy() {
 // ======= 初始化 =======
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  setLanguage(currentLang);
   renderDishes();
   updateCart();
   updateUserNav();

@@ -43,10 +43,10 @@
     </div>
     
     <ul class="hidden md:flex items-center gap-8 font-medium">
-      <li><a class="nav-link active" onclick="scrollToSection('home')">首页</a></li>
-      <li><a class="nav-link" onclick="scrollToSection('menu')">菜单</a></li>
-      <li><a class="nav-link" onclick="scrollToSection('features')">特色</a></li>
-      <li><a class="nav-link" onclick="scrollToSection('kitchen')">小厨房</a></li>
+      <li><a class="nav-link active" onclick="scrollToSection('home')" data-i18n="nav.home">首页</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('menu')" data-i18n="nav.menu">菜单</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('features')" data-i18n="nav.features">特色</a></li>
+      <li><a class="nav-link" onclick="scrollToSection('kitchen')" data-i18n="nav.kitchen">小厨房</a></li>
     </ul>
     
     <div class="flex items-center gap-3">
@@ -86,6 +86,7 @@
       <button class="theme-btn" onclick="toggleTheme()" id="themeToggle" aria-label="切换主题">
         <i class="fas fa-moon" id="themeIcon"></i>
       </button>
+      <button class="lang-btn" onclick="toggleLanguage()" id="langToggle" title="English">EN</button>
     </div>
   </nav>
 </header>
@@ -333,7 +334,7 @@
     <!-- 搜索框 -->
     <div class="search-bar reveal mb-6">
       <i class="fas fa-search search-icon"></i>
-      <input type="text" id="searchInput" class="search-input" placeholder="搜索菜品名称或描述..." oninput="handleSearch()">
+      <input type="text" id="searchInput" class="search-input" placeholder="搜索菜品名称或描述..." oninput="handleSearch()" data-i18n-placeholder="search.placeholder">
       <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
         <i class="fas fa-times"></i>
       </button>
@@ -594,20 +595,20 @@
   
   <div class="p-6 border-t" style="border-color: var(--border); background: white;">
     <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
-      <span>小计</span>
+      <span data-i18n="cart.subtotal">小计</span>
       <span id="subtotal">¥0</span>
     </div>
     <div class="flex justify-between mb-2 text-sm" style="color: var(--text-soft);">
-      <span>配送费</span>
+      <span data-i18n="cart.delivery">配送费</span>
       <span>¥6</span>
     </div>
     <div class="flex justify-between mb-4 text-lg font-bold">
-      <span>总计</span>
+      <span data-i18n="cart.total">总计</span>
       <span class="price" id="total">¥6</span>
     </div>
     <button class="btn-primary w-full justify-center" onclick="checkout()">
       <i class="fas fa-paper-plane"></i>
-      下单啦
+      <span data-i18n="cart.checkout">下单啦</span>
     </button>
   </div>
 </aside>
@@ -621,7 +622,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-2xl font-bold flex items-center gap-2">
         <i class="fas fa-receipt" style="color: var(--primary);"></i>
-        我的订单
+        <span data-i18n="order.title">我的订单</span>
       </h3>
       <button onclick="toggleOrders()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);">
         <i class="fas fa-times"></i>
@@ -646,7 +647,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-2xl font-bold flex items-center gap-2">
         <i class="fas fa-user-cog" style="color: var(--primary);"></i>
-        个人信息
+        <span data-i18n="profile.title">个人信息</span>
       </h3>
       <button onclick="closeProfile()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background: var(--bg-soft); color: var(--text);">
         <i class="fas fa-times"></i>
@@ -756,7 +757,7 @@
     <div class="flex items-center justify-between">
       <h3 class="text-2xl font-bold flex items-center gap-2">
         <i class="fas fa-chart-bar" style="color:var(--primary);"></i>
-        后台管理
+        <span data-i18n="admin.title">后台管理</span>
       </h3>
       <button onclick="toggleAdmin()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background:var(--bg-soft);color:var(--text);">
         <i class="fas fa-times"></i>
