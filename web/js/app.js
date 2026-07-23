@@ -276,8 +276,8 @@ function showDishDetail(id) {
   if (!dish) return;
   
   const isFav = favorites.includes(dish.id);
-  const randomRating = (4.5 + Math.random() * 0.8).toFixed(1);
-  const reviews = dishReviews[dish.id] || [];
+  const rating = getDishRating(id);
+  const reviews = dishReviews[id] || [];
   
   const content = document.getElementById('dishDetailContent');
   content.innerHTML = `
@@ -288,7 +288,8 @@ function showDishDetail(id) {
       <span class="dish-detail-price">¥${dish.price}</span>
       <span class="dish-detail-rating">
         <i class="fas fa-star"></i>
-        <span class="font-semibold">${randomRating}</span>
+        <span class="font-semibold">${rating.avg.toFixed(1)}</span>
+        <span style="color:var(--text-light);font-size:0.75rem;">(${rating.count}条评价)</span>
       </span>
       ${dish.tag ? `<span class="dish-tag ${dish.tagType}">${dish.tag}</span>` : ''}
       <span class="text-xs px-3 py-1 rounded-full font-semibold" style="background:var(--bg-soft);color:var(--text-soft);text-transform:capitalize;">
@@ -303,9 +304,20 @@ function showDishDetail(id) {
         <i class="fas fa-heart"></i> ${isFav ? '已收藏' : '收藏'}
       </button>
     </div>
-    ${reviews.length > 0 ? `
+    ${currentUser ? `
+    <div class="dish-detail-section">
+      <h4>写评价</h4>
+      <div class="review-form">
+        <div class="review-star-input" id="starInput">
+          ${[1,2,3,4,5].map(i => `<i class="fas fa-star star-select" data-star="${i}" onclick="setReviewStar(${i})" onmouseover="hoverReviewStar(${i})" onmouseout="resetReviewStar()"></i>`).join('')}
+        </div>
+        <textarea class="review-textarea" id="reviewText" placeholder="分享你的品尝体验..." rows="2"></textarea>
+        <button class="review-submit-btn" onclick="submitReview(${dish.id})">提交评价</button>
+      </div>
+    </div>` : '<div class="dish-detail-section"><p class="text-sm" style="color:var(--text-light);text-align:center;">登录后可以写评价哦～</p></div>'}
     <div class="dish-detail-section">
       <h4>顾客评价 (${reviews.length})</h4>
+      ${reviews.length > 0 ? `
       <div class="dish-detail-reviews">
         ${reviews.map(r => `
           <div class="dish-detail-review">
@@ -314,15 +326,72 @@ function showDishDetail(id) {
               <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
             </div>
             <div class="review-text">${r.text}</div>
+            <div class="review-date">${r.date}</div>
           </div>
         `).join('')}
-      </div>
-    </div>` : ''}
+      </div>` : '<p class="text-sm" style="color:var(--text-light);text-align:center;padding:0.5rem 0;">暂无评价，快来写第一条吧～</p>'}
+    </div>
   `;
+  
+  // Reset star state
+  window._selectedStar = 0;
+  window._hoveredStar = 0;
   
   document.getElementById('dishDetailModal').classList.add('open');
   document.getElementById('dishDetailOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+// ======= 评价系统 =======
+let _selectedStar = 0;
+let _hoveredStar = 0;
+
+function getDishRating(dishId) {
+  const all = dishReviews[dishId] || [];
+  if (all.length === 0) return { avg: 4.5, count: 0 };
+  const sum = all.reduce((s, r) => s + r.rating, 0);
+  return { avg: sum / all.length, count: all.length };
+}
+
+function setReviewStar(star) {
+  _selectedStar = star;
+  updateStars();
+}
+
+function hoverReviewStar(star) {
+  _hoveredStar = star;
+  updateStars();
+}
+
+function resetReviewStar() {
+  _hoveredStar = 0;
+  updateStars();
+}
+
+function updateStars() {
+  const active = _hoveredStar || _selectedStar;
+  document.querySelectorAll('.star-select').forEach(el => {
+    const star = parseInt(el.dataset.star);
+    el.className = `fas fa-star star-select${star <= active ? ' active' : ''}`;
+  });
+}
+
+function submitReview(dishId) {
+  if (!currentUser) { showToast('请先登录', 'error'); return; }
+  if (!_selectedStar) { showToast('请选择评分', 'error'); return; }
+  const text = document.getElementById('reviewText').value.trim();
+  if (!text) { showToast('请输入评价内容', 'error'); return; }
+  
+  if (!dishReviews[dishId]) dishReviews[dishId] = [];
+  dishReviews[dishId].unshift({
+    author: currentUser.nickname,
+    rating: _selectedStar,
+    text: text,
+    date: new Date().toLocaleString('zh-CN')
+  });
+  
+  showToast('评价已提交，谢谢分享！', 'success');
+  showDishDetail(dishId);
 }
 
 function closeDishDetail() {
