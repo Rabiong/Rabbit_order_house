@@ -13,6 +13,7 @@ class ChatAgent {
     this.listeners = [];
     this.typingTimer = null;
     this.storageKey = 'bunny_agent_session';
+    this.awaitingConfirm = false;
     this.restoreSession();
   }
 
@@ -60,22 +61,63 @@ class ChatAgent {
     const intent = this.parser.parse(text);
     this.lastIntent = intent;
 
+    // 检测多轮上下文
+    const context = this.getContext();
+    
+    // "再来一份/再加一份" 等引用上一单
+    if (!intent.dish && /(?:再|还)(?:来|加|要)/.test(text) && this.lastOrderItem) {
+      intent.action = 'add';
+      intent.dish = this.lastOrderItem;
+      intent.dishId = this.lastOrderItem.id;
+      intent.text = this.lastOrderItem.name;
+    }
+    
+    // "这个也来一份" 引用当前查看的菜品上下文
+    if (!intent.dish && /(?:这个|那个|这些)/.test(text) && this.lastOrderItem) {
+      intent.action = 'add';
+      intent.dish = this.lastOrderItem;
+      intent.dishId = this.lastOrderItem.id;
+      intent.text = this.lastOrderItem.name;
+    }
+    
+    // "好的/确认" 处理确认下单
+    if (this.isConfirm(text) && intent.action === 'unknown') {
+      if (this.awaitingConfirm) {
+        // 真正执行下单
+        this.awaitingConfirm = false;
+        const result = this.processConfirm(context);
+        this.setTyping(false);
+        this.addMessage({ role: 'assistant', text: result, type: 'success' });
+        return { text: result, type: 'success' };
+      }
+      intent.action = 'checkout';
+    }
+
     // 模拟 LLM 思考延迟
     const delay = 400 + Math.random() * 600;
     await this.sleep(delay);
 
     // 生成回复
-    const context = this.getContext();
     const response = this.responder.generate(intent, context);
     
+    // 检测是否需要确认状态
+    if (response.type === 'confirm') {
+      this.awaitingConfirm = true;
+    } else {
+      this.awaitingConfirm = false;
+    }
+    
     // 特殊处理确认下单
-    if (intent.action === 'unknown' && this.isConfirm(text)) {
-      response.text = this.processConfirm(context);
-      response.type = 'success';
+    if (intent.action === 'checkout' && this.isConfirm(text)) {
+      // 已在上方处理
     }
 
     // 更新上下文记忆
-    if (intent.dish) this.lastOrderItem = intent.dish;
+    if (intent.dish && typeof intent.dish === 'object') this.lastOrderItem = intent.dish;
+    else if (intent.dish && typeof intent.dish === 'number') {
+      const dish = DISHES.find(d => d.id === intent.dish);
+      if (dish) this.lastOrderItem = dish;
+    }
 
     // 添加回复
     this.setTyping(false);
