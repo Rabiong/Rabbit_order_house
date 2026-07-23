@@ -479,6 +479,7 @@ function updateCart() {
         <p class="text-sm mt-1">快去挑些好吃的吧～</p>
       </div>
     `;
+    document.getElementById('cartRecommendations').style.display = 'none';
   } else {
     cartItems.innerHTML = cart.map(item => `
       <div class="cart-item">
@@ -497,11 +498,101 @@ function updateCart() {
         </button>
       </div>
     `).join('');
+    renderCartRecommendations();
   }
   
   const subtotalVal = cart.reduce((s, i) => s + i.price * i.qty, 0);
   subtotal.textContent = `¥${subtotalVal}`;
   total.textContent = `¥${subtotalVal + DELIVERY_FEE}`;
+}
+
+// ======= 智能推荐 =======
+function getRecommendations() {
+  if (cart.length === 0) return [];
+  
+  // 获取购物车中的分类偏好
+  const cartCategories = {};
+  cart.forEach(item => {
+    cartCategories[item.category] = (cartCategories[item.category] || 0) + item.qty;
+  });
+  
+  // 分类权重排序
+  const sortedCats = Object.entries(cartCategories).sort((a, b) => b[1] - a[1]);
+  const topCat = sortedCats[0][0];
+  
+  // 互补分类映射
+  const complementMap = {
+    'main': ['salad', 'drink', 'dessert'],
+    'dessert': ['drink', 'main'],
+    'drink': ['dessert', 'main'],
+    'salad': ['main', 'drink'],
+    'limited': ['main', 'dessert', 'drink']
+  };
+  
+  const cartIds = cart.map(i => i.id);
+  const candidates = complementMap[topCat] || ['main', 'dessert', 'drink'];
+  
+  // 按分类权重推荐，排除已在购物车中的菜品
+  const recommended = [];
+  const seen = new Set();
+  
+  // 先从同分类推荐
+  const sameCatDishes = DISHES.filter(d => d.category === topCat && !cartIds.includes(d.id));
+  sameCatDishes.forEach(d => {
+    if (!seen.has(d.id)) {
+      recommended.push(d);
+      seen.add(d.id);
+    }
+  });
+  
+  // 再从互补分类推荐
+  for (const cat of candidates) {
+    if (cat === topCat) continue;
+    if (recommended.length >= 4) break;
+    const catDishes = DISHES.filter(d => d.category === cat && !cartIds.includes(d.id) && !seen.has(d.id));
+    for (const d of catDishes) {
+      if (recommended.length >= 4) break;
+      recommended.push(d);
+      seen.add(d.id);
+    }
+  }
+  
+  return recommended.slice(0, 4);
+}
+
+function renderCartRecommendations() {
+  const container = document.getElementById('cartRecommendations');
+  if (!container) return;
+  
+  const recs = getRecommendations();
+  if (recs.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  
+  container.style.display = '';
+  container.innerHTML = `
+    <div class="cart-rec-section">
+      <div class="cart-rec-header">
+        <i class="fas fa-lightbulb" style="color:var(--accent);"></i>
+        <span class="font-bold text-sm">你可能还喜欢</span>
+      </div>
+      <div class="cart-rec-grid">
+        ${recs.map(dish => `
+          <div class="cart-rec-item" onclick="addToCart(${dish.id}, null)">
+            <div class="cart-rec-img">${dish.svg}</div>
+            <div class="cart-rec-info">
+              <div class="cart-rec-name">${dish.name}</div>
+              <div class="cart-rec-price">¥${dish.price}</div>
+            </div>
+            <button class="cart-rec-add" onclick="event.stopPropagation();addToCart(${dish.id}, null)">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function changeQty(id, delta) {
