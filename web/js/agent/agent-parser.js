@@ -42,7 +42,35 @@ class AgentParser {
     map['布丁'] = 10;
     map['奶昔'] = 11;
     map['果茶'] = 12;
+    // 增强别名
+    map['胡萝卜松饼'] = 1; map['胡萝卜蛋糕'] = 1; map['carrot muffin'] = 1;
+    map['草莓蛋糕'] = 2; map['strawberry cake'] = 2; map['草莓奶油'] = 2;
+    map['兔兔便当'] = 3; map['便当盒'] = 3; map['bento'] = 3;
+    map['草莓奶茶'] = 4; map['strawberry milk tea'] = 4; map['草莓奶'] = 4;
+    map['拿铁'] = 5; map['latte'] = 5; map['生椰拿铁'] = 5;
+    map['凯撒沙拉'] = 6; map['caesar salad'] = 6; map['蔬菜沙拉'] = 6;
+    map['芒果冰沙'] = 7; map['mango smoothie'] = 7; map['冰沙'] = 7;
+    map['鸡肉卷'] = 8; map['chicken wrap'] = 8; map['wrap'] = 8;
+    map['咖喱饭'] = 9; map['curry rice'] = 9; map['curry'] = 9;
+    map['焦糖布丁'] = 10; map['caramel pudding'] = 10; map['pudding'] = 10;
+    map['香蕉奶昔'] = 11; map['banana shake'] = 11; map['奶昔'] = 11;
+    map['蜜桃果茶'] = 12; map['peach tea'] = 12; map['果茶'] = 12;
+    // 分类别名
+    map['主食'] = 'category_main'; map['main'] = 'category_main';
+    map['甜品'] = 'category_dessert'; map['dessert'] = 'category_dessert';
+    map['饮品'] = 'category_drink'; map['drink'] = 'category_drink';
+    map['沙拉'] = 'category_salad'; map['限定'] = 'category_limited';
     return map;
+  }
+
+  matchCategory(text) {
+    if (!text) return null;
+    for (const [alias, val] of Object.entries(this.dishAliases)) {
+      if (val && typeof val === 'string' && val.startsWith('category_') && text.includes(alias)) {
+        return val.replace('category_', '');
+      }
+    }
+    return null;
   }
 
   buildActionPatterns() {
@@ -71,6 +99,8 @@ class AgentParser {
         /菜单/,
         /有什么(?:推荐|好吃的)/,
         /看看菜单/,
+        /(?:有|看|看看|我要).*(?:主食|甜品|饮品|沙拉|限定|drink|dessert|main)/,
+        /(?:主食|甜品|饮品|沙拉|限定|drink|dessert|main).*(?:菜单|有什么|有)/,
       ],
       checkout: [
         /(?:结账|结算|下单|付款|买单)/,
@@ -139,12 +169,15 @@ class AgentParser {
     const dishId = this.matchDish(matchText || trimmed);
 
     // 4. 构建结果
+    const category = this.matchCategory(matchText || trimmed);
+    
     return {
       action,
       text: matchText || trimmed,
       quantity: qty,
       dishId,
       dish: dishId ? DISHES.find(d => d.id === dishId) : null,
+      category,
       raw: trimmed
     };
   }
