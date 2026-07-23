@@ -191,13 +191,13 @@ function renderDishes() {
     const isFav = favorites.includes(dish.id);
     return `
     <div class="dish-card reveal visible ${isFav ? 'favorited' : ''}">
-      <div class="dish-image">
+      <div class="dish-image" onclick="showDishDetail(${dish.id})" style="cursor:pointer;">
         ${dish.svg}
         ${dish.tag ? `<div class="dish-tag ${dish.tagType}">${dish.tag}</div>` : ''}
-        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${dish.id}, event)" aria-label="收藏">
+        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${dish.id}, event)" aria-label="收藏">
           <i class="fas fa-heart"></i>
         </button>
-        <button class="add-btn" onclick="addToCart(${dish.id}, event)" aria-label="加入购物车">
+        <button class="add-btn" onclick="event.stopPropagation();addToCart(${dish.id}, event)" aria-label="加入购物车">
           <i class="fas fa-plus"></i>
         </button>
       </div>
@@ -266,6 +266,74 @@ function updateFavCategoryBtn() {
   } else {
     btn.style.display = 'none';
   }
+}
+
+// ======= 菜品详情弹窗 =======
+let dishReviews = {};
+
+function showDishDetail(id) {
+  const dish = DISHES.find(d => d.id === id);
+  if (!dish) return;
+  
+  const isFav = favorites.includes(dish.id);
+  const randomRating = (4.5 + Math.random() * 0.8).toFixed(1);
+  const reviews = dishReviews[dish.id] || [];
+  
+  const content = document.getElementById('dishDetailContent');
+  content.innerHTML = `
+    <div class="dish-detail-svg">${dish.svg}</div>
+    <div class="dish-detail-name">${dish.name}</div>
+    <div class="dish-detail-desc">${dish.desc}</div>
+    <div class="dish-detail-meta">
+      <span class="dish-detail-price">¥${dish.price}</span>
+      <span class="dish-detail-rating">
+        <i class="fas fa-star"></i>
+        <span class="font-semibold">${randomRating}</span>
+      </span>
+      ${dish.tag ? `<span class="dish-tag ${dish.tagType}">${dish.tag}</span>` : ''}
+      <span class="text-xs px-3 py-1 rounded-full font-semibold" style="background:var(--bg-soft);color:var(--text-soft);text-transform:capitalize;">
+        ${dish.category}
+      </span>
+    </div>
+    <div class="dish-detail-actions">
+      <button class="dish-detail-btn-primary" onclick="addToCartFromDetail(${dish.id})">
+        <i class="fas fa-shopping-basket"></i> 加入购物车
+      </button>
+      <button class="dish-detail-btn-secondary" onclick="toggleFavorite(${dish.id}, event); showDishDetail(${dish.id})">
+        <i class="fas fa-heart"></i> ${isFav ? '已收藏' : '收藏'}
+      </button>
+    </div>
+    ${reviews.length > 0 ? `
+    <div class="dish-detail-section">
+      <h4>顾客评价 (${reviews.length})</h4>
+      <div class="dish-detail-reviews">
+        ${reviews.map(r => `
+          <div class="dish-detail-review">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="review-author">${r.author}</span>
+              <span class="review-stars">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</span>
+            </div>
+            <div class="review-text">${r.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+  `;
+  
+  document.getElementById('dishDetailModal').classList.add('open');
+  document.getElementById('dishDetailOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDishDetail() {
+  document.getElementById('dishDetailModal').classList.remove('open');
+  document.getElementById('dishDetailOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addToCartFromDetail(id) {
+  addToCart(id, null);
+  closeDishDetail();
 }
 
 // ======= 购物车操作 =======
@@ -1025,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') {
       closeAuthModal();
       closeProfile();
+      closeDishDetail();
       if (document.getElementById('cartPanel').classList.contains('open')) toggleCart();
       if (document.getElementById('orderPanel').classList.contains('open')) toggleOrders();
     }

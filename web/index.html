@@ -691,6 +691,13 @@
   </div>
 </aside>
 
+<!-- 菜品详情弹窗 -->
+<div class="auth-overlay" id="dishDetailOverlay" onclick="closeDishDetail()" style="z-index:200;"></div>
+<div class="dish-detail-modal" id="dishDetailModal" style="z-index:201;">
+  <button class="auth-close" onclick="closeDishDetail()"><i class="fas fa-times"></i></button>
+  <div class="dish-detail-content" id="dishDetailContent"></div>
+</div>
+
 <!-- 地址表单弹窗 -->
 <div class="auth-overlay" id="addressFormOverlay" onclick="closeAddressForm()"></div>
 <div class="auth-modal" id="addressFormModal" style="z-index:210;">
