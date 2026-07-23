@@ -1483,6 +1483,25 @@ function initScrollSpy() {
   });
 }
 
+// ======= 开屏教程引导 =======
+function dismissTutorial() {
+  const check = document.getElementById('tutorialDismissCheck');
+  if (check && check.checked) {
+    localStorage.setItem('bunnyTutorialDismissed', 'true');
+  }
+  document.getElementById('tutorialOverlay').classList.remove('show');
+}
+
+function initTutorial() {
+  const dismissed = localStorage.getItem('bunnyTutorialDismissed');
+  if (!dismissed) {
+    // 等页面完全加载后再显示引导
+    setTimeout(() => {
+      document.getElementById('tutorialOverlay').classList.add('show');
+    }, 800);
+  }
+}
+
 // ======= 初始化 =======
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -1494,6 +1513,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupReveal();
   initCategories();
   initScrollSpy();
+  initTutorial();
   
   // 绑定兔子点击事件
   const bunny = document.querySelector('.bunny-mascot');

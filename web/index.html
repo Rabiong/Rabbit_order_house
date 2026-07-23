@@ -818,6 +818,30 @@
 <!-- Toast 容器 -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- 开屏教程引导 -->
+<div class="tutorial-overlay" id="tutorialOverlay">
+  <div class="tutorial-ring" id="tutorialRing"></div>
+  <div class="tutorial-bubble" id="tutorialBubble">
+    <div class="tutorial-bunny">
+      <svg viewBox="0 0 40 40">
+        <circle cx="20" cy="20" r="16" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="14" cy="8" rx="4" ry="10" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <ellipse cx="26" cy="8" rx="4" ry="10" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+        <circle cx="15" cy="18" r="1.5" fill="#5a3a44"/>
+        <circle cx="25" cy="18" r="1.5" fill="#5a3a44"/>
+        <path d="M 17 23 Q 20 26 23 23" stroke="#5a3a44" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="tutorial-title">嗨！我是<strong>兔兔小助手</strong></div>
+    <p class="tutorial-desc">点击右下角的小气泡，我可以帮你点餐、推荐菜品、查询订单哦～</p>
+    <label class="tutorial-check">
+      <input type="checkbox" id="tutorialDismissCheck">
+      <span>不再显示</span>
+    </label>
+    <button class="tutorial-btn" onclick="dismissTutorial()">我知道了</button>
+  </div>
+</div>
+
 <script src="js/app.js"></script>
 <script src="js/agent/agent-parser.js"></script>
 <script src="js/agent/agent-responder.js"></script>
