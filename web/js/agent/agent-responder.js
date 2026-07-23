@@ -6,6 +6,22 @@
 class AgentResponder {
   constructor(agent) {
     this.agent = agent;
+    this.seasonalGreetings = this.initSeasonal();
+  }
+
+  initSeasonal() {
+    const month = new Date().getMonth();
+    const season = month < 3 ? 'spring' : month < 6 ? 'summer' : month < 9 ? 'autumn' : 'winter';
+    return {
+      spring: { emoji: '🌸', msg: '春天来啦，来点清新美味吧～' },
+      summer: { emoji: '☀️', msg: '天气好热，来杯冰饮消消暑吧～' },
+      autumn: { emoji: '🍂', msg: '秋高气爽，最适合吃点暖心的～' },
+      winter: { emoji: '❄️', msg: '天冷了，来份热乎的暖暖肚子吧～' }
+    }[season] || { emoji: '🥕', msg: '今天想吃什么呢？' };
+  }
+
+  pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
   }
 
   generate(intent, context) {
@@ -34,8 +50,13 @@ class AgentResponder {
                       hour < 14 ? '中午好' :
                       hour < 18 ? '下午好' : '晚上好';
     const name = context.currentUser?.nickname || '小伙伴';
+    const openers = [
+      `${timeGreet}，${name}！${this.seasonalGreetings.emoji}`,
+      `嗨嗨，${name}～ ${this.seasonalGreetings.msg}`,
+      `${timeGreet}呀${name}！想我了吗～🥕`,
+    ];
     return {
-      text: `${timeGreet}，${name}！我是兔兔小助手 🐰\n\n我可以帮你：\n🥕 点餐 — "来一份胡萝卜松饼"\n📋 看菜单 — "有什么好吃的"\n🛒 查购物车 — "看看购物车"\n📦 查订单 — "我的订单"\n💡 推荐 — "推荐一下"\n\n想吃什么尽管跟我说～`,
+      text: `${this.pickRandom(openers)}\n\n我可以帮你：\n🥕 点餐 — "来一份胡萝卜松饼"\n📋 看菜单 — "有什么好吃的"\n🛒 查购物车 — "看看购物车"\n📦 查订单 — "我的订单"\n💡 推荐 — "推荐一下"\n\n想吃什么尽管跟我说～`,
       type: 'greeting'
     };
   }
@@ -86,10 +107,13 @@ class AgentResponder {
     this.agent.executeAdd(dish.id);
 
     const qtyWord = quantity > 1 ? `${quantity}份` : '';
+    const addMsgs = [
+      qtyWord ? `好的，${qtyWord}${dish.name}已加入购物车啦 🛒 还需要别的吗？` : `好的，${dish.name}已加入购物车啦 🛒 还需要别的吗？`,
+      qtyWord ? `${dish.name}×${quantity} 搞定！加进购物车了～ 还要再来点别的吗？🥕` : `${dish.name}已经放进购物车啦！还要再来点别的吗？🥕`,
+      `好嘞！${qtyWord || '一份'}${dish.name}安排上了 ✅ 还想吃什么尽管说～`,
+    ];
     return {
-      text: qtyWord
-        ? `好的，${qtyWord}${dish.name}已加入购物车啦 🛒 还需要别的吗？`
-        : `好的，${dish.name}已加入购物车啦 🛒 还需要别的吗？`,
+      text: this.pickRandom(addMsgs),
       type: 'success',
       action: 'added',
       dishId: dish.id,
