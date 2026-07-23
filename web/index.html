@@ -773,9 +773,55 @@
   </div>
 </aside>
 
+<!-- Agent 对话助手 -->
+<div class="agent-fab" id="agentFab" onclick="toggleAgent()">
+  <i class="fas fa-comment-dots"></i>
+</div>
+
+<div class="agent-panel" id="agentPanel">
+  <div class="agent-header">
+    <div class="agent-header-info">
+      <div class="agent-avatar">
+        <svg viewBox="0 0 40 40">
+          <circle cx="20" cy="20" r="16" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="14" cy="8" rx="4" ry="10" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="26" cy="8" rx="4" ry="10" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <circle cx="15" cy="18" r="1.5" fill="#5a3a44"/>
+          <circle cx="25" cy="18" r="1.5" fill="#5a3a44"/>
+          <path d="M 17 23 Q 20 26 23 23" stroke="#5a3a44" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="agent-header-name">兔兔小助手</div>
+        <div class="agent-header-status">🟢 在线</div>
+      </div>
+    </div>
+    <button class="agent-close" onclick="toggleAgent()"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="agent-messages" id="agentMessages"></div>
+  <div class="agent-input-area">
+    <div class="agent-suggestions" id="agentSuggestions">
+      <button onclick="agentSendSuggestion('有什么好吃的')">🍽️ 看菜单</button>
+      <button onclick="agentSendSuggestion('推荐一下')">💡 推荐</button>
+      <button onclick="agentSendSuggestion('看看购物车')">🛒 购物车</button>
+    </div>
+    <div class="agent-input-row">
+      <input type="text" class="agent-input" id="agentInput" placeholder="跟兔兔说说想吃啥…" onkeydown="agentHandleKey(event)">
+      <button class="agent-send" id="agentSendBtn" onclick="agentSendMessage()">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="agent-overlay" id="agentOverlay" onclick="toggleAgent()"></div>
+
 <!-- Toast 容器 -->
 <div class="toast-container" id="toastContainer"></div>
 
 <script src="js/app.js"></script>
+<script src="js/agent/agent-parser.js"></script>
+<script src="js/agent/agent-responder.js"></script>
+<script src="js/agent/agent.js"></script>
+<script src="js/agent/agent-ui.js"></script>
 </body>
 </html>
