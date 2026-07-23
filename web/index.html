@@ -70,7 +70,10 @@
           <button class="user-dropdown-item" onclick="showProfile()">
             <i class="fas fa-user-cog"></i> 个人信息
           </button>
-          <button class="user-dropdown-item logout" onclick="handleLogout()">
+          <button class="user-dropdown-item" onclick="toggleAdmin()">
+            <i class="fas fa-chart-bar"></i> 后台管理
+          </button>
+          <button class="user-dropdown-item" onclick="handleLogout()">
             <i class="fas fa-sign-out-alt"></i> 退出登录
           </button>
         </div>
@@ -323,13 +326,25 @@
       <p style="color: var(--text-soft);">每一道都是用心准备，记得要吃光光哦～</p>
     </div>
     
-    <div class="flex gap-3 overflow-x-auto pb-4 mb-10 justify-start md:justify-center reveal" id="categories">
+    <!-- 搜索框 -->
+    <div class="search-bar reveal mb-6">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="searchInput" class="search-input" placeholder="搜索菜品名称或描述..." oninput="handleSearch()">
+      <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="flex gap-3 overflow-x-auto pb-4 mb-6 justify-start md:justify-center reveal" id="categories">
       <button class="category-pill active" data-category="all">全部</button>
       <button class="category-pill" data-category="main">主食</button>
       <button class="category-pill" data-category="dessert">甜品</button>
       <button class="category-pill" data-category="drink">饮品</button>
       <button class="category-pill" data-category="salad">沙拉</button>
       <button class="category-pill" data-category="limited">限定</button>
+      <button class="category-pill fav-pill" data-category="favorites" id="favCategoryBtn" style="display:none;">
+        <i class="fas fa-heart"></i> 收藏
+      </button>
     </div>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="dishGrid"></div>
@@ -657,6 +672,89 @@
       </div>
       
       <button class="auth-btn" onclick="saveProfile()">保存信息</button>
+    </div>
+
+    <!-- 地址管理 -->
+    <div class="profile-section" style="margin-top:1.5rem;">
+      <div class="flex items-center justify-between mb-4">
+        <h4 class="font-bold text-lg">收货地址</h4>
+        <button class="text-sm px-4 py-2 rounded-full font-semibold" style="background:var(--primary);color:white;border:none;cursor:pointer;" onclick="showAddAddressForm()">
+          <i class="fas fa-plus"></i> 添加地址
+        </button>
+      </div>
+      <div id="addressList"></div>
+    </div>
+  </div>
+</aside>
+
+<!-- 地址表单弹窗 -->
+<div class="auth-overlay" id="addressFormOverlay" onclick="closeAddressForm()"></div>
+<div class="auth-modal" id="addressFormModal" style="z-index:210;">
+  <button class="auth-close" onclick="closeAddressForm()"><i class="fas fa-times"></i></button>
+  <div class="auth-bunny">
+    <svg viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="38" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+      <ellipse cx="40" cy="18" rx="10" ry="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+      <ellipse cx="80" cy="18" rx="10" ry="28" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+      <ellipse cx="40" cy="20" rx="5" ry="22" fill="#ffb3c8"/>
+      <ellipse cx="80" cy="20" rx="5" ry="22" fill="#ffb3c8"/>
+      <circle cx="48" cy="58" r="3.5" fill="#5a3a44"/>
+      <circle cx="72" cy="58" r="3.5" fill="#5a3a44"/>
+      <path d="M 60 100 L 60 85" stroke="#7fdcb8" stroke-width="3" stroke-linecap="round"/>
+      <rect x="35" y="100" width="50" height="8" rx="4" fill="#7fdcb8"/>
+    </svg>
+  </div>
+  <h2 id="addressFormTitle">添加地址</h2>
+  <form id="addressForm" onsubmit="event.preventDefault();saveAddress()">
+    <input type="hidden" id="addressId">
+    <div class="form-group">
+      <label>标签</label>
+      <select id="addressLabel" class="form-select">
+        <option value="家">🏠 家</option>
+        <option value="公司">💼 公司</option>
+        <option value="学校">🎒 学校</option>
+        <option value="其他">📍 其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>收货人</label>
+      <input type="text" id="addressReceiver" placeholder="收货人姓名" required>
+    </div>
+    <div class="form-group">
+      <label>联系电话</label>
+      <input type="text" id="addressPhone" placeholder="手机号码" required>
+    </div>
+    <div class="form-group">
+      <label>详细地址</label>
+      <input type="text" id="addressDetail" placeholder="街道、门牌号等" required>
+    </div>
+    <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;">
+      <input type="checkbox" id="addressIsDefault" style="width:auto;">
+      <label for="addressIsDefault" style="margin:0;">设为默认地址</label>
+    </div>
+    <button type="submit" class="auth-btn">保存地址</button>
+  </form>
+</div>
+
+<!-- 后台管理面板 -->
+<div class="cart-overlay" id="adminOverlay" onclick="toggleAdmin()" style="z-index:180;"></div>
+<aside class="order-panel" id="adminPanel" style="z-index:181;width:520px;max-width:95vw;">
+  <div class="p-6 border-b" style="border-color:var(--border);">
+    <div class="flex items-center justify-between">
+      <h3 class="text-2xl font-bold flex items-center gap-2">
+        <i class="fas fa-chart-bar" style="color:var(--primary);"></i>
+        后台管理
+      </h3>
+      <button onclick="toggleAdmin()" class="w-9 h-9 rounded-full flex items-center justify-center transition" style="background:var(--bg-soft);color:var(--text);">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <div class="flex-1 overflow-y-auto p-6">
+    <div id="adminDashboard"></div>
+    <div class="admin-section" style="margin-top:1.5rem;">
+      <h4 class="font-bold mb-3">订单管理</h4>
+      <div id="adminOrderList"></div>
     </div>
   </div>
 </aside>

@@ -42,7 +42,15 @@ let currentCategory = 'all';
 let orders = [];
 let orderIdCounter = 1;
 let orderFilter = 'all';
+let searchQuery = '';
 const DELIVERY_FEE = 6;
+
+// ======= 收藏夹状态 =======
+let favorites = [];
+
+// ======= 地址管理状态 =======
+let addresses = [];
+let addressIdCounter = 1;
 
 // ======= 用户状态 =======
 let currentUser = null;
@@ -79,16 +87,74 @@ const API = {
   }
 };
 
+// ======= 搜索功能 =======
+function handleSearch() {
+  const input = document.getElementById('searchInput');
+  searchQuery = input.value.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = searchQuery ? 'flex' : 'none';
+  renderDishes();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').style.display = 'none';
+  renderDishes();
+}
+
 // ======= 菜品渲染 =======
+function getFilteredDishes() {
+  let dishes = currentCategory === 'favorites'
+    ? DISHES.filter(d => favorites.includes(d.id))
+    : currentCategory === 'all' ? DISHES : DISHES.filter(d => d.category === currentCategory);
+  
+  if (searchQuery) {
+    dishes = dishes.filter(d =>
+      d.name.toLowerCase().includes(searchQuery) ||
+      d.desc.toLowerCase().includes(searchQuery)
+    );
+  }
+  return dishes;
+}
+
 function renderDishes() {
   const grid = document.getElementById('dishGrid');
-  const filtered = currentCategory === 'all' ? DISHES : DISHES.filter(d => d.category === currentCategory);
+  const filtered = getFilteredDishes();
   
-  grid.innerHTML = filtered.map(dish => `
-    <div class="dish-card reveal visible">
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="col-span-full text-center py-16">
+        <svg width="100" height="100" viewBox="0 0 100 100" class="mx-auto mb-4">
+          <circle cx="50" cy="45" r="30" fill="#fff" stroke="#ffd1dc" stroke-width="2"/>
+          <ellipse cx="35" cy="15" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="65" cy="15" rx="6" ry="18" fill="#fff" stroke="#ffd1dc" stroke-width="1.5"/>
+          <ellipse cx="35" cy="17" rx="3" ry="13" fill="#ffb3c8"/>
+          <ellipse cx="65" cy="17" rx="3" ry="13" fill="#ffb3c8"/>
+          <ellipse cx="40" cy="50" rx="8" ry="5" fill="#ff9ec5" opacity="0.6"/>
+          <ellipse cx="60" cy="50" rx="8" ry="5" fill="#ff9ec5" opacity="0.6"/>
+          <circle cx="42" cy="40" r="3" fill="#5a3a44"/>
+          <circle cx="58" cy="40" r="3" fill="#5a3a44"/>
+          <path d="M 46 46 Q 50 50 54 46" stroke="#5a3a44" stroke-width="1.5" fill="none"/>
+        </svg>
+        <p class="font-medium" style="color: var(--text-soft);">
+          ${searchQuery ? '没有找到匹配的菜品' : currentCategory === 'favorites' ? '还没有收藏菜品哦～' : '暂无菜品'}
+        </p>
+        ${searchQuery ? '<button class="text-sm mt-2" style="color:var(--primary);cursor:pointer;" onclick="clearSearch()">清除搜索</button>' : ''}
+      </div>
+    `;
+    return;
+  }
+  
+  grid.innerHTML = filtered.map(dish => {
+    const isFav = favorites.includes(dish.id);
+    return `
+    <div class="dish-card reveal visible ${isFav ? 'favorited' : ''}">
       <div class="dish-image">
         ${dish.svg}
         ${dish.tag ? `<div class="dish-tag ${dish.tagType}">${dish.tag}</div>` : ''}
+        <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(${dish.id}, event)" aria-label="收藏">
+          <i class="fas fa-heart"></i>
+        </button>
         <button class="add-btn" onclick="addToCart(${dish.id}, event)" aria-label="加入购物车">
           <i class="fas fa-plus"></i>
         </button>
@@ -105,19 +171,59 @@ function renderDishes() {
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 // ======= 分类切换 =======
 function initCategories() {
   document.querySelectorAll('.category-pill').forEach(pill => {
     pill.addEventListener('click', () => {
+      if (pill.dataset.category === 'favorites') {
+        const btn = document.getElementById('favCategoryBtn');
+        if (!btn || btn.style.display === 'none') return;
+      }
       document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
       currentCategory = pill.dataset.category;
       renderDishes();
     });
   });
+}
+
+// ======= 收藏夹操作 =======
+function toggleFavorite(id, event) {
+  if (event) event.preventDefault();
+  const idx = favorites.indexOf(id);
+  if (idx > -1) {
+    favorites.splice(idx, 1);
+    showToast('已取消收藏', 'info');
+  } else {
+    favorites.push(id);
+    const dish = DISHES.find(d => d.id === id);
+    if (dish && currentUser) {
+      // API 同步
+    }
+    showToast('已加入收藏 ♥', 'success');
+  }
+  updateFavCategoryBtn();
+  renderDishes();
+}
+
+function isFavorited(id) {
+  return favorites.includes(id);
+}
+
+function updateFavCategoryBtn() {
+  const btn = document.getElementById('favCategoryBtn');
+  if (!btn) return;
+  if (currentUser && favorites.length > 0) {
+    btn.style.display = '';
+    btn.innerHTML = `<i class="fas fa-heart"></i> 收藏 (${favorites.length})`;
+  } else if (currentUser && favorites.length === 0) {
+    btn.style.display = 'none';
+  } else {
+    btn.style.display = 'none';
+  }
 }
 
 // ======= 购物车操作 =======
@@ -347,9 +453,11 @@ function updateUserNav() {
     } else {
       icon.className = 'fas fa-user';
     }
+    updateFavCategoryBtn();
   } else {
     authNav.classList.remove('hidden');
     userNav.classList.add('hidden');
+    document.getElementById('favCategoryBtn').style.display = 'none';
   }
 }
 
@@ -364,6 +472,7 @@ function showProfile() {
   document.getElementById('profileAddress').value = currentUser.address || '';
   document.getElementById('profileName').textContent = currentUser.nickname;
   document.getElementById('profileUsername').textContent = `@${currentUser.username}`;
+  renderAddresses();
 }
 
 function closeProfile() {
@@ -384,6 +493,213 @@ function saveProfile() {
   document.getElementById('profileName').textContent = nickname;
   updateUserNav();
   showToast('个人信息已保存', 'success');
+}
+
+// ======= 地址管理 =======
+function renderAddresses() {
+  const container = document.getElementById('addressList');
+  if (!container) return;
+  if (addresses.length === 0) {
+    container.innerHTML = '<p class="text-sm" style="color:var(--text-light);text-align:center;padding:1rem 0;">还没有添加收货地址</p>';
+    return;
+  }
+  container.innerHTML = addresses.map(addr => `
+    <div class="address-item ${addr.isDefault ? 'default' : ''}">
+      <div class="address-item-header">
+        <span class="address-label">${addr.label}</span>
+        ${addr.isDefault ? '<span class="address-badge">默认</span>' : ''}
+        <div class="address-actions">
+          <button class="address-btn" onclick="editAddress(${addr.id})" title="编辑"><i class="fas fa-edit"></i></button>
+          <button class="address-btn" onclick="deleteAddress(${addr.id})" title="删除"><i class="fas fa-trash-alt"></i></button>
+        </div>
+      </div>
+      <div class="address-info">
+        <p><strong>${addr.receiver}</strong> ${addr.phone}</p>
+        <p class="text-sm" style="color:var(--text-soft);">${addr.detail}</p>
+      </div>
+      ${!addr.isDefault ? '<button class="text-xs" style="color:var(--primary);cursor:pointer;border:none;background:none;font-weight:600;" onclick="setDefaultAddress(' + addr.id + ')">设为默认</button>' : ''}
+    </div>
+  `).join('');
+}
+
+function showAddAddressForm() {
+  document.getElementById('addressFormTitle').textContent = '添加地址';
+  document.getElementById('addressForm').reset();
+  document.getElementById('addressId').value = '';
+  document.getElementById('addressIsDefault').checked = addresses.length === 0;
+  document.getElementById('addressFormModal').classList.add('open');
+  document.getElementById('addressFormOverlay').classList.add('open');
+}
+
+function closeAddressForm() {
+  document.getElementById('addressFormModal').classList.remove('open');
+  document.getElementById('addressFormOverlay').classList.remove('open');
+}
+
+function saveAddress() {
+  const id = document.getElementById('addressId').value;
+  const label = document.getElementById('addressLabel').value.trim();
+  const receiver = document.getElementById('addressReceiver').value.trim();
+  const phone = document.getElementById('addressPhone').value.trim();
+  const detail = document.getElementById('addressDetail').value.trim();
+  if (!label || !receiver || !phone || !detail) { showToast('请填写完整信息', 'error'); return; }
+  
+  const isDefault = document.getElementById('addressIsDefault').checked;
+  
+  if (id) {
+    // 编辑
+    const addr = addresses.find(a => a.id === parseInt(id));
+    if (addr) {
+      if (isDefault) addresses.forEach(a => a.isDefault = false);
+      addr.label = label; addr.receiver = receiver; addr.phone = phone; addr.detail = detail; addr.isDefault = isDefault;
+    }
+  } else {
+    // 新增
+    if (isDefault) addresses.forEach(a => a.isDefault = false);
+    addresses.push({ id: addressIdCounter++, label, receiver, phone, detail, isDefault });
+  }
+  closeAddressForm();
+  renderAddresses();
+  showToast(id ? '地址已更新' : '地址已添加', 'success');
+}
+
+function editAddress(id) {
+  const addr = addresses.find(a => a.id === id);
+  if (!addr) return;
+  document.getElementById('addressFormTitle').textContent = '编辑地址';
+  document.getElementById('addressId').value = addr.id;
+  document.getElementById('addressLabel').value = addr.label;
+  document.getElementById('addressReceiver').value = addr.receiver;
+  document.getElementById('addressPhone').value = addr.phone;
+  document.getElementById('addressDetail').value = addr.detail;
+  document.getElementById('addressIsDefault').checked = addr.isDefault;
+  document.getElementById('addressFormModal').classList.add('open');
+  document.getElementById('addressFormOverlay').classList.add('open');
+}
+
+function deleteAddress(id) {
+  if (!confirm('确认删除这个地址？')) return;
+  addresses = addresses.filter(a => a.id !== id);
+  renderAddresses();
+  showToast('地址已删除', 'info');
+}
+
+function setDefaultAddress(id) {
+  addresses.forEach(a => a.isDefault = a.id === id);
+  renderAddresses();
+  showToast('已设为默认地址', 'success');
+}
+
+// ======= 后台管理面板 =======
+function toggleAdmin() {
+  document.getElementById('adminPanel').classList.toggle('open');
+  document.getElementById('adminOverlay').classList.toggle('open');
+  if (document.getElementById('adminPanel').classList.contains('open')) {
+    renderAdminDashboard();
+  }
+}
+
+function renderAdminDashboard() {
+  const totalDishes = DISHES.length;
+  const totalOrders = orders.length;
+  const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
+  const pendingCount = orders.filter(o => o.status === 'pending').length;
+  const preparingCount = orders.filter(o => o.status === 'preparing').length;
+  const completedCount = orders.filter(o => o.status === 'completed').length;
+  const cancelledCount = orders.filter(o => o.status === 'cancelled').length;
+  
+  // 热门菜品
+  const dishSales = {};
+  orders.forEach(o => o.items.forEach(i => {
+    dishSales[i.id] = (dishSales[i.id] || 0) + i.qty;
+  }));
+  const topDishes = Object.entries(dishSales)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([id, count]) => {
+      const dish = DISHES.find(d => d.id === parseInt(id));
+      return { id, name: dish ? dish.name : 'Unknown', count };
+    });
+
+  const statsHTML = `
+    <div class="admin-stats-grid">
+      <div class="admin-stat-card" style="background:linear-gradient(135deg,#ff7ba9,#ff9ec5);">
+        <div class="admin-stat-icon"><i class="fas fa-utensils"></i></div>
+        <div class="admin-stat-num">${totalDishes}</div>
+        <div class="admin-stat-label">菜品总数</div>
+      </div>
+      <div class="admin-stat-card" style="background:linear-gradient(135deg,#ff9a56,#ffc89a);">
+        <div class="admin-stat-icon"><i class="fas fa-receipt"></i></div>
+        <div class="admin-stat-num">${totalOrders}</div>
+        <div class="admin-stat-label">订单总数</div>
+      </div>
+      <div class="admin-stat-card" style="background:linear-gradient(135deg,#7fdcb8,#b5e8d4);">
+        <div class="admin-stat-icon"><i class="fas fa-dollar-sign"></i></div>
+        <div class="admin-stat-num">¥${totalRevenue}</div>
+        <div class="admin-stat-label">总收入</div>
+      </div>
+      <div class="admin-stat-card" style="background:linear-gradient(135deg,#c47be8,#dab0f0);">
+        <div class="admin-stat-icon"><i class="fas fa-chart-bar"></i></div>
+        <div class="admin-stat-num">${pendingCount}/${preparingCount}/${completedCount}</div>
+        <div class="admin-stat-label">待处理/进行中/已完成</div>
+      </div>
+    </div>
+    ${topDishes.length > 0 ? `
+    <div class="admin-section">
+      <h4 class="font-bold mb-3">热门菜品 Top ${topDishes.length}</h4>
+      <div class="admin-top-dishes">
+        ${topDishes.map((d, i) => `
+          <div class="admin-top-item">
+            <span class="admin-top-rank">${i + 1}</span>
+            <span class="flex-1">${d.name}</span>
+            <span class="font-bold" style="color:var(--primary);">${d.count} 份</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : '<p class="text-sm" style="color:var(--text-light);text-align:center;padding:2rem;">暂无订单数据</p>'}
+  `;
+  
+  document.getElementById('adminDashboard').innerHTML = statsHTML;
+  renderAdminOrders();
+}
+
+function renderAdminOrders() {
+  const container = document.getElementById('adminOrderList');
+  if (orders.length === 0) {
+    container.innerHTML = '<p class="text-sm" style="color:var(--text-light);text-align:center;padding:2rem;">暂无订单</p>';
+    return;
+  }
+  container.innerHTML = orders.map(order => {
+    const statusMap = { pending: '待处理', preparing: '准备中', completed: '已完成', cancelled: '已取消' };
+    const itemSummary = order.items.map(i => `${i.name}×${i.qty}`).join('、');
+    return `
+      <div class="admin-order-item">
+        <div class="flex items-center justify-between mb-1">
+          <span class="font-bold">#${order.id}</span>
+          <span class="admin-order-status ${order.status}">${statusMap[order.status]}</span>
+        </div>
+        <p class="text-xs" style="color:var(--text-soft);">${itemSummary}</p>
+        <div class="flex items-center justify-between mt-2">
+          <span class="font-bold" style="color:var(--primary-dark);">¥${order.total}</span>
+          <div class="flex gap-1">
+            ${order.status === 'pending' ? `<button class="admin-action-btn" onclick="adminUpdateOrder(${order.id},'preparing')">开始制作</button>` : ''}
+            ${order.status === 'preparing' ? `<button class="admin-action-btn" onclick="adminUpdateOrder(${order.id},'completed')">完成</button>` : ''}
+            ${order.status === 'pending' ? `<button class="admin-action-btn cancel" onclick="adminUpdateOrder(${order.id},'cancelled')">取消</button>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function adminUpdateOrder(id, newStatus) {
+  const order = orders.find(o => o.id === id);
+  if (order) {
+    order.status = newStatus;
+    renderAdminOrders();
+    renderAdminDashboard();
+    showToast(`订单 #${id} 已更新为 ${newStatus}`, 'success');
+  }
 }
 
 // ======= 订单面板 =======
