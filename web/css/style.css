@@ -604,7 +604,7 @@ nav {
   flex-direction: column;
   box-shadow: -10px 0 30px rgba(0,0,0,0.1);
 }
-.admin-panel { width: 520px; max-width: 95vw; z-index: 121; }
+.admin-panel { width: 520px; max-width: 95vw; right: -520px; z-index: 121; }
 #adminOverlay { z-index: 120; }
 .order-panel.open { right: 0; }
 
