@@ -19,6 +19,69 @@
   --shadow: rgba(255, 123, 169, 0.2);
 }
 
+/* 暗色主题 */
+[data-theme="dark"] {
+  --bg: #1a1a2e;
+  --bg-soft: #16213e;
+  --bg-deep: #0f3460;
+  --primary: #ff7ba9;
+  --primary-dark: #ff9ec5;
+  --primary-light: #5a3a44;
+  --accent: #ff9a56;
+  --accent-light: #7a4a2a;
+  --mint: #7fdcb8;
+  --mint-light: #2a4a3e;
+  --cream: #2a2a3e;
+  --text: #e8d5dc;
+  --text-soft: #b89ba3;
+  --text-light: #8a6770;
+  --border: #3a2a34;
+  --shadow: rgba(255, 123, 169, 0.1);
+}
+[data-theme="dark"] nav {
+  background: rgba(26, 26, 46, 0.85);
+}
+[data-theme="dark"] .dish-card {
+  background: #2a2a3e;
+}
+[data-theme="dark"] .cart-item,
+[data-theme="dark"] .order-card,
+[data-theme="dark"] .admin-section,
+[data-theme="dark"] .admin-order-item,
+[data-theme="dark"] .address-item,
+[data-theme="dark"] .profile-section {
+  background: #2a2a3e;
+}
+[data-theme="dark"] .auth-modal,
+[data-theme="dark"] .order-panel,
+[data-theme="dark"] .profile-panel {
+  background: #1a1a2e;
+}
+[data-theme="dark"] .search-input {
+  background: #2a2a3e;
+  color: #e8d5dc;
+}
+[data-theme="dark"] .cart-item-img svg rect[fill="#fff"],
+[data-theme="dark"] .dish-card svg rect[fill="#fff"],
+[data-theme="dark"] .dish-card svg circle[fill="#fff"] {
+  fill: #3a3a5e;
+}
+[data-theme="dark"] .user-dropdown {
+  background: #1a1a2e;
+  border-color: #3a2a34;
+}
+[data-theme="dark"] .user-dropdown-item:hover {
+  background: #2a2a3e;
+}
+[data-theme="dark"] .category-pill {
+  background: #2a2a3e;
+  color: #b89ba3;
+}
+[data-theme="dark"] .category-pill.active {
+  background: var(--primary);
+  color: #fff;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -117,6 +180,25 @@ nav {
 }
 .cart-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 6px 20px var(--shadow); }
 .cart-btn:active { transform: translateY(0); }
+
+/* 主题切换按钮 */
+.theme-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--primary-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 1.1rem;
+  transition: all 0.3s;
+}
+.theme-btn:hover { background: var(--primary); color: white; transform: rotate(30deg); }
+[data-theme="dark"] .theme-btn { background: #2a2a3e; border-color: #5a3a44; color: #ffc89a; }
+[data-theme="dark"] .theme-btn:hover { background: var(--primary); color: white; }
 
 .cart-badge {
   position: absolute;

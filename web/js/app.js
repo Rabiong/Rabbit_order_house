@@ -87,6 +87,48 @@ const API = {
   }
 };
 
+// ======= 主题切换 =======
+let currentTheme = localStorage.getItem('bunnyTheme') || 'light';
+
+function toggleTheme() {
+  currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+  setTheme(currentTheme);
+}
+
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('bunnyTheme', theme);
+  currentTheme = theme;
+  const icon = document.getElementById('themeIcon');
+  if (icon) {
+    icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  }
+  updateThemeMeta(theme);
+}
+
+function updateThemeMeta(theme) {
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    meta.content = theme === 'dark' ? '#1a1a2e' : '#fff0f5';
+  }
+}
+
+function initTheme() {
+  // 检查系统偏好
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (!localStorage.getItem('bunnyTheme')) {
+    currentTheme = prefersDark ? 'dark' : 'light';
+  }
+  setTheme(currentTheme);
+  
+  // 监听系统主题变化
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    if (!localStorage.getItem('bunnyTheme')) {
+      setTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+}
+
 // ======= 搜索功能 =======
 function handleSearch() {
   const input = document.getElementById('searchInput');
@@ -957,6 +999,7 @@ function initScrollSpy() {
 
 // ======= 初始化 =======
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   renderDishes();
   updateCart();
   updateUserNav();
