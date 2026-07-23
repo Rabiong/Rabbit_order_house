@@ -65,6 +65,50 @@ fn main {
     println("  - \{d.name} (\{d.desc})")
   }
   
+  // ===== 新功能测试 =====
+  
+  // 1. 收藏夹测试
+  let fav_store = FavoriteStore::new()
+  fav_store.add(1, "胡萝卜松饼").unwrap()
+  fav_store.add(3, "兔兔便当").unwrap()
+  println("")
+  println("❤️ 收藏夹: \{fav_store.count()} 项")
+  for f in fav_store.all() {
+    println("  - \{f.dish_name}")
+  }
+  println("  胡萝卜松饼已收藏? \{fav_store.is_favorited(1)}")
+  fav_store.remove(1)
+  println("  取消收藏后: \{fav_store.count()} 项")
+  
+  // 2. 地址管理测试
+  let addr_store = AddressStore::new()
+  addr_store.add("家", "兔兔", "13800138000", "森林路 123 号胡萝卜公寓 101", true)
+  addr_store.add("公司", "Mochi", "13900139000", "萝卜街 456 号", false)
+  println("")
+  println("📮 地址簿: \{addr_store.all().length()} 个地址")
+  for a in addr_store.all() {
+    println("  [\{a.label}] \{a.receiver} - \{a.phone}")
+    println("    \{a.detail} \{if a.is_default { "(默认)" } else { "" }}")
+  }
+  match addr_store.default() {
+    Some(d) => println("  默认地址: \{d.label} - \{d.detail}")
+    None => println("  无默认地址")
+  }
+  
+  // 3. 后台管理测试
+  let admin = AdminStore::new(dish_store, order_store)
+  let stats = admin.dashboard()
+  println("")
+  println("📊 管理后台统计:")
+  println("  菜品数: \{stats.total_dishes}")
+  println("  订单数: \{stats.total_orders}")
+  println("  总收入: ¥\{stats.total_revenue}")
+  println("  待处理: \{stats.pending_count} | 准备中: \{stats.preparing_count} | 已完成: \{stats.completed_count} | 已取消: \{stats.cancelled_count}")
+  println("  热门菜品:")
+  for t in stats.top_dishes {
+    println("    - \{t.name}: 售出 \{t.order_count} 份")
+  }
+  
   println("")
   println("🐰 感谢光临兔兔小厨房！")
 }
