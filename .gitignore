@@ -10,3 +10,6 @@ _build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Misc / docs
+__misc/
