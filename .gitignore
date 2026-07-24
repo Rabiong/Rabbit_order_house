@@ -13,3 +13,12 @@ Thumbs.db
 
 # Misc / docs
 __misc/
+_misc/
+
+# Sensitive files (prevent accidental credential leaks)
+*.env
+.env.*
+*.pem
+*.key
+config/credentials*
+secrets*
